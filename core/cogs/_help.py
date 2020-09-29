@@ -11,7 +11,7 @@ class Help(commands.HelpCommand):
 
     def embedify(self, title: str, description: str) -> discord.Embed:
         """Returns the default embed used for our HelpCommand"""
-        embed = discord.Embed(title=title, description=description, color=0x36393E, timestamp=dt.utcnow())
+        embed = discord.Embed(title=title, description=description, color=0xFCD207, timestamp=dt.utcnow())
         embed.set_author(name=self.context.bot.user, icon_url=self.context.bot.user.avatar_url)
         embed.set_footer(icon_url=self.context.author.avatar_url, text=f"Called by: {self.context.author}")
         return embed
