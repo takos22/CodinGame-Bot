@@ -80,9 +80,10 @@ class CodinGame(commands.Cog):
                 description=f"**[Join here]({clash_of_code.join_url})**",
             )
 
-            embed.add_field(name="Public", value=clash_of_code.public)
             embed.add_field(name="Min players", value=clash_of_code.min_players)
             embed.add_field(name="Max players", value=clash_of_code.max_players)
+            embed.add_field(name="# of players", value=len(clash_of_code.players))
+            embed.add_field(name="Public", value=clash_of_code.public)
             embed.add_field(name="Possible modes", value=", ".join(clash_of_code.modes) or "Any")
             embed.add_field(name="Programming languages", value=", ".join(clash_of_code.programming_languages) or "All")
             embed.add_field(name="Started", value=clash_of_code.started)
@@ -110,9 +111,10 @@ class CodinGame(commands.Cog):
             description=f"**[Join here]({clash_of_code.join_url})**",
         )
 
-        embed.add_field(name="Public", value=clash_of_code.public)
         embed.add_field(name="Min players", value=clash_of_code.min_players)
         embed.add_field(name="Max players", value=clash_of_code.max_players)
+        embed.add_field(name="# of players", value=len(clash_of_code.players))
+        embed.add_field(name="Public", value=clash_of_code.public)
         embed.add_field(
             name="Possible modes",
             value=", ".join(clash_of_code.modes)
