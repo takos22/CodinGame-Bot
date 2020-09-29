@@ -84,8 +84,25 @@ class CodinGame(commands.Cog):
             embed.add_field(name="Max players", value=clash_of_code.max_players)
             embed.add_field(name="# of players", value=len(clash_of_code.players))
             embed.add_field(name="Public", value=clash_of_code.public)
-            embed.add_field(name="Possible modes", value=", ".join(clash_of_code.modes) or "Any")
-            embed.add_field(name="Programming languages", value=", ".join(clash_of_code.programming_languages) or "All")
+            embed.add_field(
+                name="Possible modes",
+                value=", ".join(clash_of_code.modes)
+                if clash_of_code.modes is not None else "Any",
+            )
+            embed.add_field(
+                name="Programming languages",
+                value=", ".join(clash_of_code.programming_languages)
+                if clash_of_code.programming_languages is not None
+                else "All",
+            )
+
+            embed.add_field(name="Creation time", value=str(clash_of_code.creation_time))
+            embed.add_field(name="Start time", value=str(clash_of_code.start_time))
+            embed.add_field(
+                name="End time",
+                value=str(clash_of_code.end_time) if clash_of_code.end_time else "Not finished yet",
+            )
+
             embed.add_field(name="Started", value=clash_of_code.started)
             embed.add_field(name="Finished", value=clash_of_code.finished)
 
@@ -126,6 +143,14 @@ class CodinGame(commands.Cog):
             if clash_of_code.programming_languages is not None
             else "All",
         )
+
+        embed.add_field(name="Creation time", value=str(clash_of_code.creation_time))
+        embed.add_field(name="Start time", value=str(clash_of_code.start_time))
+        embed.add_field(
+            name="End time",
+            value=str(clash_of_code.end_time) if clash_of_code.end_time else "Not finished yet",
+        )
+
         embed.add_field(name="Started", value=clash_of_code.started)
         embed.add_field(name="Finished", value=clash_of_code.finished)
 
