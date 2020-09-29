@@ -6,8 +6,8 @@ import os
 
 initial_cogs = [
     "jishaku",
-    "core.cogs._help",
-    "core.cogs.codingame",
+    "cogs._help",
+    "cogs.codingame",
 ]
 
 os.environ["JISHAKU_NO_UNDERSCORE"] = "True"
