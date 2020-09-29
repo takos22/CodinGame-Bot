@@ -74,8 +74,8 @@ class CodinGame(commands.Cog):
             return await ctx.send(self.clean(str(error)))
         else:
             embed = discord.Embed(
-                title=f"**Clash of Code: [Join here]({clash_of_code.join_url})**",
-                description=clash_of_code.public_handle,
+                title=f"**Clash of Code:** {clash_of_code.public_handle}",
+                description=f"**[Join here]({clash_of_code.join_url})**",
             )
             embed.set_footer(icon_url=ctx.author.avatar_url, text=f"Called by: {ctx.author}")
 
@@ -104,8 +104,8 @@ class CodinGame(commands.Cog):
             return await ctx.send("No pending clashes currently, try again later.")
 
         embed = discord.Embed(
-            title=f"**Clash of Code: [Join here]({clash_of_code.join_url})**",
-            description=clash_of_code.public_handle,
+            title=f"**Clash of Code:** {clash_of_code.public_handle}",
+            description=f"**[Join here]({clash_of_code.join_url})**",
         )
         embed.set_footer(icon_url=ctx.author.avatar_url, text=f"Called by: {ctx.author}")
 
