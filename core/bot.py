@@ -51,7 +51,7 @@ class Bot(commands.Bot):
             title=title,
             description=description,
             colour=color,
-            timestamp=datetime.utcnow()
+            timestamp=datetime.datetime.utcnow()
         )
         embed.set_footer(icon_url=ctx.author.avatar_url, text=f"Called by: {ctx.author}")
         return embed
