@@ -28,16 +28,6 @@ class CodinGame(commands.Cog):
             .replace("@everyone", "@\u200beveryone")
         )
 
-    @staticmethod
-    def embed(ctx, *, title, description, color=0xFCD207) -> discord.Embed:
-        embed = discord.Embed(
-            title=title,
-            description=description,
-            colour=color,
-        )
-        embed.set_footer(icon_url=ctx.author.avatar_url, text=f"Called by: {ctx.author}")
-        return embed
-
     @commands.group(name="codingame", aliases=["cg"])
     async def codingame(self, ctx: commands.Context):
         """Commands for the CodinGame API."""
@@ -52,7 +42,7 @@ class CodinGame(commands.Cog):
         except (ValueError, aiocodingame.CodinGamerNotFound) as error:
             return await ctx.send(self.clean(str(error)))
         else:
-            embed = self.embed(
+            embed = self.bot.embed(
                 ctx,
                 title=f"**Codingamer:** {self.clean(codingamer.pseudo or codingamer.public_handle)}",
                 description=self.clean(f"{codingamer.tagline or ''}\n{codingamer.biography or ''}"),
@@ -84,7 +74,7 @@ class CodinGame(commands.Cog):
         except (ValueError, aiocodingame.ClashOfCodeNotFound) as error:
             return await ctx.send(self.clean(str(error)))
         else:
-            embed = self.embed(
+            embed = self.bot.embed(
                 ctx,
                 title=f"**Clash of Code:** {clash_of_code.public_handle}",
                 description=f"**[Join here]({clash_of_code.join_url})**",
@@ -114,7 +104,7 @@ class CodinGame(commands.Cog):
         if clash_of_code is None:
             return await ctx.send("No pending clashes currently, try again later.")
 
-        embed = self.embed(
+        embed = self.bot.embed(
             ctx,
             title=f"**Clash of Code:** {clash_of_code.public_handle}",
             description=f"**[Join here]({clash_of_code.join_url})**",
