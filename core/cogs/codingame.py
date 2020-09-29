@@ -2,6 +2,7 @@ import discord
 from discord.ext import commands
 import aiocodingame
 
+
 def setup(bot: commands.Bot):
     bot.add_cog(CodinGame(bot=bot))
 
@@ -18,8 +19,13 @@ class CodinGame(commands.Cog):
 
     @staticmethod
     def clean(name: str):
-        return name.replace("_", "\\_").replace("*", "\\*").replace(
-            "`", "`\u200b").replace("@", "\\@")
+        return (
+            name.replace("_", "\\_")
+            .replace("*", "\\*")
+            .replace("`", "`\u200b")
+            .replace("@", "\\@")
+            .replace("@everyone", "@\u200beveryone")
+        )
 
     @commands.group(name="codingame", aliases=["cg"])
     async def codingame(self, ctx: commands.Context):
@@ -33,11 +39,11 @@ class CodinGame(commands.Cog):
         try:
             codingamer: aiocodingame.CodinGamer = await self.client.get_codingamer(public_handle)
         except (ValueError, aiocodingame.CodinGamerNotFound) as error:
-            return await ctx.send(error)
+            return await ctx.send(self.clean(str(error)))
         else:
             embed = discord.Embed(
                 title=f"**Codingamer:** {self.clean(codingamer.pseudo or codingamer.public_handle)}",
-                description=self.clean(f"{codingamer.tagline or ''}\n{codingamer.biography or ''}")
+                description=self.clean(f"{codingamer.tagline or ''}\n{codingamer.biography or ''}"),
             )
 
             if codingamer.avatar:
@@ -65,11 +71,11 @@ class CodinGame(commands.Cog):
         try:
             clash_of_code: aiocodingame.ClashOfCode = await self.client.get_clash_of_code(public_handle)
         except (ValueError, aiocodingame.ClashOfCodeNotFound) as error:
-            return await ctx.send(error)
+            return await ctx.send(self.clean(str(error)))
         else:
             embed = discord.Embed(
-                title=f"**Clash of Code:** {clash_of_code.public_handle}",
-                description=f"[**Join here**]({clash_of_code.join_url})"
+                title=f"**Clash of Code: [Join here]({clash_of_code.join_url})**",
+                description=clash_of_code.public_handle,
             )
             embed.set_footer(icon_url=ctx.author.avatar_url, text=f"Called by: {ctx.author}")
 
@@ -84,9 +90,9 @@ class CodinGame(commands.Cog):
             if clash_of_code.started:
                 embed.add_field(name="Mode", value=clash_of_code.mode)
 
-            embed.add_field(name="Players", value=", ".join(
-                self.clean(player.pseudo) for player in clash_of_code.players
-            ))
+            embed.add_field(
+                name="Players", value=", ".join(self.clean(player.pseudo) for player in clash_of_code.players)
+            )
             await ctx.send(embed=embed)
 
     @codingame.command(name="pending_clash_of_code", aliases=["pending", "pcoc"])
@@ -98,8 +104,8 @@ class CodinGame(commands.Cog):
             return await ctx.send("No pending clashes currently, try again later.")
 
         embed = discord.Embed(
-            title=f"**Clash of Code:** {clash_of_code.public_handle}",
-            description=f"[**Join here**]({clash_of_code.join_url})",
+            title=f"**Clash of Code: [Join here]({clash_of_code.join_url})**",
+            description=clash_of_code.public_handle,
         )
         embed.set_footer(icon_url=ctx.author.avatar_url, text=f"Called by: {ctx.author}")
 
