@@ -88,3 +88,40 @@ class CodinGame(commands.Cog):
                 self.clean(player.pseudo) for player in clash_of_code.players
             ))
             await ctx.send(embed=embed)
+
+    @codingame.command(name="pending_clash_of_code", aliases=["pending", "pcoc"])
+    async def pending_clash_of_code(self, ctx: commands.Context):
+        """Get a pending public Clash of Code."""
+        clash_of_code: aiocodingame.ClashOfCode = await self.client.get_pending_clash_of_code()
+
+        if clash_of_code is None:
+            return await ctx.send("No pending clashes currently, try again later.")
+
+        embed = discord.Embed(
+            title=f"**Clash of Code:** {clash_of_code.public_handle}",
+            description=f"[**Join here**]({clash_of_code.join_url})",
+        )
+        embed.set_footer(icon_url=ctx.author.avatar_url, text=f"Called by: {ctx.author}")
+
+        embed.add_field(name="Public", value=clash_of_code.public)
+        embed.add_field(name="Min players", value=clash_of_code.min_players)
+        embed.add_field(name="Max players", value=clash_of_code.max_players)
+        embed.add_field(
+            name="Possible modes",
+            value=", ".join(clash_of_code.modes)
+            if clash_of_code.modes is not None else "Any"
+        )
+        embed.add_field(
+            name="Programming languages",
+            value=", ".join(clash_of_code.programming_languages)
+            if clash_of_code.programming_languages is not None
+            else "All",
+        )
+        embed.add_field(name="Started", value=clash_of_code.started)
+        embed.add_field(name="Finished", value=clash_of_code.finished)
+
+        if clash_of_code.started:
+            embed.add_field(name="Mode", value=clash_of_code.mode)
+
+        embed.add_field(name="Players", value=", ".join(self.clean(player.pseudo) for player in clash_of_code.players))
+        await ctx.send(embed=embed)
