@@ -11,9 +11,8 @@ class Help(commands.HelpCommand):
 
     def embedify(self, title: str, description: str) -> discord.Embed:
         """Returns the default embed used for our HelpCommand"""
-        embed = discord.Embed(title=title, description=description, color=0xFCD207, timestamp=dt.utcnow())
+        embed = self.context.bot.embed(title=title, description=description)
         embed.set_author(name=self.context.bot.user, icon_url=self.context.bot.user.avatar_url)
-        embed.set_footer(icon_url=self.context.author.avatar_url, text=f"Called by: {self.context.author}")
         return embed
 
     def command_not_found(self, string) -> str:
