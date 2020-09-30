@@ -26,6 +26,7 @@ class CodinGame(commands.Cog):
             .replace("`", "`\u200b")
             .replace("@", "\\@")
             .replace("@everyone", "@\u200beveryone")
+            .replace("@here", "@\u200bhere")
         )
 
     @commands.group(name="codingame", aliases=["cg"])
