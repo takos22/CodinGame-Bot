@@ -15,10 +15,10 @@ class Help(commands.HelpCommand):
         embed.set_author(name=self.context.bot.user, icon_url=self.context.bot.user.avatar_url)
         return embed
 
-    def command_not_found(self, string) -> str:
+    def command_not_found(self, string: str) -> str:
         return f"Command or category `{self.clean_prefix}{string}` not found. Try again..."
 
-    def subcommand_not_found(self, command, string) -> str:
+    def subcommand_not_found(self, command: commands.Command, string) -> str:
         ret = f"Command `{self.context.prefix}{command.qualified_name}` has no subcommands."
         if isinstance(command, commands.Group) and len(command.all_commands) > 0:
             return ret[:-2] + f" named {string}"
@@ -46,7 +46,7 @@ class Help(commands.HelpCommand):
 
         return cmds, groups
 
-    def full_command_path(self, command, include_prefix: bool = True):
+    def full_command_path(self, command: commands.Command, include_prefix: bool = True):
         string = f"`{command.qualified_name} {command.signature}`"
 
         if any(command.aliases):
@@ -82,7 +82,7 @@ class Help(commands.HelpCommand):
 
         await self.context.send(embed=embed)
 
-    async def send_group_help(self, group):
+    async def send_group_help(self, group: commands.Group):
         embed = self.embedify(
             title=self.full_command_path(group), description=group.short_doc or "*No special description*"
         )
@@ -101,7 +101,7 @@ class Help(commands.HelpCommand):
 
         await self.context.send(embed=embed)
 
-    async def send_cog_help(self, cog):
+    async def send_cog_help(self, cog: commands.Cog):
         embed = self.embedify(title=cog.qualified_name, description=cog.description or "*No special description*")
 
         filtered = await self.filter_commands(cog.get_commands())
@@ -115,7 +115,7 @@ class Help(commands.HelpCommand):
 
         await self.context.send(embed=embed)
 
-    async def send_command_help(self, command):
+    async def send_command_help(self, command: commands.Command):
         embed = self.embedify(
             title=self.full_command_path(command, include_prefix=True),
             description=command.help or "*No specified command description.*",
