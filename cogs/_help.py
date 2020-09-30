@@ -2,7 +2,7 @@ from discord.ext import commands
 import discord
 
 import itertools
-from datetime import datetime as dt
+import datetime
 
 
 class Help(commands.HelpCommand):
@@ -132,10 +132,20 @@ class Help(commands.HelpCommand):
             elif isinstance(error, (commands.MissingRole, commands.MissingAnyRole)):
                 missing_permissions = error.missing_roles or [error.missing_role]
             else:
-                await self.context.bot.get_user(401346079733317634).send(
-                    f"send_command_help\n\n{self.context.author} raised this error that you didnt think of:\n"
-                    f"{type(error).__name__}\n\nChannel: {self.context.channel.mention}"
+                error_embed = discord.Embed(
+                    title="Error you didn't think of",
+                    description=f"{self.context.author} raised this error that you didnt think of.",
+                    colour=0xFF0000,
+                    timestamp=datetime.datetime.utcnow(),
                 )
+                error_embed.set_author(name="send_command_help")
+                error_embed.add_field(name="Type", value=type(error).__name__)
+                error_embed.add_field(name="Error", value=str(error))
+                error_embed.add_field(name="Channel", value=self.context.channel.mention)
+                error_embed.add_field(
+                    name="Message", value=f"[{self.context.message.id}]({self.context.message.jump_url})"
+                )
+                await self.context.bot.get_user(401346079733317634).send(embed=embed)
                 missing_permissions = None
 
             if missing_permissions is not None:
