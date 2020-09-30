@@ -18,6 +18,7 @@ class Bot(commands.Bot):
     def __init__(self, **kwargs):
         super().__init__(command_prefix=kwargs.pop("command_prefix", "!"), case_insensitive=True, **kwargs)
         self.start_time = datetime.datetime.utcnow()
+        self.owner_id = 401346079733317634
 
     async def on_ready(self):
         print(f"Successfully logged in as {self.user}")
