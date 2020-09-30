@@ -145,7 +145,7 @@ class Help(commands.HelpCommand):
                 error_embed.add_field(
                     name="Message", value=f"[{self.context.message.id}]({self.context.message.jump_url})"
                 )
-                await self.context.bot.get_user(self.context.bot.owner_id).send(embed=embed)
+                await self.context.bot.get_user(self.context.bot.owner_id).send(embed=error_embed)
                 missing_permissions = None
 
             if missing_permissions is not None:
