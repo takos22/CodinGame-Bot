@@ -1,6 +1,6 @@
 import discord
 from discord.ext import commands
-from discord.errors import (
+from discord.ext.commands.errors import (
     CheckFailure,
     BadUnionArgument,
     CommandOnCooldown,
