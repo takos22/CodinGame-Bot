@@ -114,15 +114,15 @@ class Bot(commands.Bot):
         else:
             error_embed = discord.Embed(
                 title="Error you didn't think of",
-                description=f"{self.context.author} raised this error that you didnt think of.",
+                description=f"{ctx.author} raised this error that you didnt think of.",
                 colour=0xFF0000,
                 timestamp=datetime.datetime.utcnow(),
             )
             error_embed.set_author(name="send_command_help")
             error_embed.add_field(name="Type", value=type(error).__name__)
             error_embed.add_field(name="Error", value=str(error))
-            error_embed.add_field(name="Channel", value=self.context.channel.mention)
-            error_embed.add_field(name="Message", value=f"[{self.context.message.id}]({self.context.message.jump_url})")
+            error_embed.add_field(name="Channel", value=ctx.channel.mention)
+            error_embed.add_field(name="Message", value=f"[{ctx.message.id}]({ctx.message.jump_url})")
             await self.get_user(self.owner_id).send(embed=error_embed)
             raise error
 
