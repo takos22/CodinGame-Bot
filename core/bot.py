@@ -118,7 +118,7 @@ class Bot(commands.Bot):
                 colour=0xFF0000,
                 timestamp=datetime.datetime.utcnow(),
             )
-            error_embed.set_author(name="send_command_help")
+            error_embed.set_author(name="on_command_error")
             error_embed.add_field(name="Type", value=type(error).__name__)
             error_embed.add_field(name="Error", value=str(error))
             error_embed.add_field(name="Channel", value=ctx.channel.mention)
