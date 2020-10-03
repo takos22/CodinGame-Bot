@@ -48,15 +48,23 @@ class Bot(commands.Bot):
     async def on_message(self, message):
         await self.wait_until_ready()
 
+        print(f"{message.channel}: {message.author}: {message.clean_content}")
+
+        await self.process_commands(message)
+
+    async def process_commands(self, message):
         if message.author.bot:
             return
 
-        print(f"{message.channel}: {message.author}: {message.clean_content}")
+        ctx: commands.Context = await self.get_context(message=message)
 
-        if not message.guild:
+        if ctx.command is None:
             return
 
-        await self.process_commands(message)
+        try:
+            await self.invoke(ctx)
+        finally:
+            print(f"@{ctx.author} used {ctx.command.name} command in #{ctx.channel}")
 
     async def logout(self):
         await self.cogs["CodinGame"].close()
