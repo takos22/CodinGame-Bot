@@ -42,7 +42,7 @@ class CodinGame(commands.Cog):
             return await ctx.send(self.clean(str(error)))
         else:
             embed = self.bot.embed(
-                ctx,
+                ctx=ctx,
                 title=f"**Codingamer:** {self.clean(codingamer.pseudo or codingamer.public_handle)}",
                 description=self.clean(f"{codingamer.tagline or ''}\n{codingamer.biography or ''}"),
             )
@@ -77,7 +77,7 @@ class CodinGame(commands.Cog):
             return await ctx.send(self.clean(str(error)))
         else:
             embed = self.bot.embed(
-                ctx,
+                ctx=ctx,
                 title=f"**Clash of Code:** {clash_of_code.public_handle}",
                 description=f"**[Join here]({clash_of_code.join_url})**",
             )
@@ -125,7 +125,7 @@ class CodinGame(commands.Cog):
             return await ctx.send("No pending clashes currently, try again later.")
 
         embed = self.bot.embed(
-            ctx,
+            ctx=ctx,
             title=f"**Clash of Code:** {clash_of_code.public_handle}",
             description=f"**[Join here]({clash_of_code.join_url})**",
         )

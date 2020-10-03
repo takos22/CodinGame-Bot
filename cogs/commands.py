@@ -16,7 +16,7 @@ class Commands(commands.Cog):
     @commands.command(name="invite")
     async def invite(self, ctx: commands.Context):
         embed = self.bot.embed(
-            ctx,
+            ctx=ctx,
             title="Invite me to your server",
             description=(
                 f"[**Invite me here**]({self.invite_link})\n"
