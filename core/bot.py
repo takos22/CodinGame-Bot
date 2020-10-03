@@ -22,6 +22,7 @@ import os
 initial_cogs = [
     "jishaku",
     "cogs._help",
+    "cogs.commands",
     "cogs.codingame",
 ]
 
