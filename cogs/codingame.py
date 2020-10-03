@@ -33,8 +33,8 @@ class CodinGame(commands.Cog):
     @codingame.command(name="codingamer", aliases=["user", "c"])
     async def codingamer(
         self, ctx: commands.Context,
-        public_handle: commands.clean_content(fix_channel_mentions=True
-    )):
+        public_handle: commands.clean_content(fix_channel_mentions=True)
+    ):
         """Get a Codingamer from his public handle."""
         try:
             codingamer: aiocodingame.CodinGamer = await self.client.get_codingamer(public_handle)
