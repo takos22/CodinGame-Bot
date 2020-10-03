@@ -11,7 +11,7 @@ class Commands(commands.Cog):
 
     @property
     def invite_link(self):
-        return "https://discord.com/oauth2/authorize?client_id=759474863525330944&permissions=268528728&scope=bot"
+        return "https://discord.com/oauth2/authorize?client_id=759474863525330944&permissions=268528720&scope=bot"
 
     @commands.command(name="invite")
     async def invite(self, ctx: commands.Context):
