@@ -135,6 +135,22 @@ class Bot(commands.Bot):
             await self.get_user(self.owner_id).send(embed=error_embed)
             raise error
 
+    async def on_guild_join(self, guild: discord.Guild):
+        for channel in guild.channels:
+            try:
+                invite: discord.Invite = await channel.create_invite()
+            except discord.NotFound:
+                continue
+            else:
+                break
+        print(f"Joined guild {guild.name}, invite: {invite.url}")
+        embed = self.embed(title=f"Joined guild {guild.name!r}", description=f"[Join here]({invite.url})")
+        embed.set_author(name=guild.id)
+        embed.add_field(name="Owner", value=guild.owner)
+        embed.add_field(name="Members", value=guild.member_count)
+        embed.add_field(name="Channels", value=len(guild.channels))
+        await self.get_user(self.owner_id).send(embed=embed)
+
     @staticmethod
     def lts(list_: list):
         """List to string.
