@@ -127,6 +127,12 @@ class Bot(commands.Bot):
             raise error
 
     @staticmethod
+    def lts(list_: list):
+        """List to string.
+           For use in `self.on_command_error`"""
+        return ', '.join([obj.name if isinstance(obj, discord.Role) else str(obj).replace('_', ' ') for obj in list_])
+
+    @staticmethod
     def embed(ctx, *, title, description, color=0xFCD207) -> discord.Embed:
         embed = discord.Embed(
             title=title,
