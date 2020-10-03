@@ -73,7 +73,7 @@ class Help(commands.HelpCommand):
                 cmd_names, group_names = self.command_or_group(*cmds)
                 embed.add_field(
                     name=f"**{category}**",
-                    value=("**Commands: **" + ", ".join(cmd_names) + "\n") * bool(cmd_names) +
+                    value=("**Commands:** " + ", ".join(cmd_names) + "\n") * bool(cmd_names) +
                     ("**Groups: **\n" + "\n".join(
                         f"{group}: {names}" for group, names in group_names.items()
                     )) * bool(group_names),
