@@ -18,6 +18,9 @@ class Commands(commands.Cog):
         embed = self.bot.embed(
             ctx,
             title="Invite me to your server",
-            description=f"[Invite me here]({self.invite_link})",
+            description=(
+                f"[**Invite me here**]({self.invite_link})\n"
+                f"Curently in {len(self.bot.guilds)} server{'s' * bool(len(self.bot.guilds) - 1)}."
+            ),
         )
         await ctx.send(embed=embed)
