@@ -1,5 +1,3 @@
-import discord
-from discord import colour
 from discord.ext import commands
 import aiocodingame
 
@@ -21,12 +19,9 @@ class CodinGame(commands.Cog):
     @staticmethod
     def clean(name: str):
         return (
-            name.replace("_", "\\_")
-            .replace("*", "\\*")
-            .replace("`", "`\u200b")
-            .replace("@", "\\@")
-            .replace("@everyone", "@\u200beveryone")
-            .replace("@here", "@\u200bhere")
+            name.replace("_", r"\_")
+            .replace("*", r"\*")
+            .replace("`", r"\`")
         )
 
     @commands.group(name="codingame", aliases=["cg"])
@@ -36,7 +31,10 @@ class CodinGame(commands.Cog):
             return await ctx.send_help(self.bot.get_command("codingame"))
 
     @codingame.command(name="codingamer", aliases=["user", "c"])
-    async def codingamer(self, ctx: commands.Context, public_handle: str):
+    async def codingamer(
+        self, ctx: commands.Context,
+        public_handle: commands.clean_content(fix_channel_mentions=True
+    )):
         """Get a Codingamer from his public handle."""
         try:
             codingamer: aiocodingame.CodinGamer = await self.client.get_codingamer(public_handle)
@@ -52,7 +50,7 @@ class CodinGame(commands.Cog):
             if codingamer.avatar:
                 embed.set_thumbnail(url=codingamer.avatar_url)
 
-            embed.set_author(name=f"{codingamer.public_handle} | {codingamer.id}")
+            embed.set_author(name=codingamer.public_handle)
 
             embed.add_field(name="Rank", value=codingamer.rank)
             embed.add_field(name="Level", value=codingamer.level)
@@ -68,7 +66,10 @@ class CodinGame(commands.Cog):
             await ctx.send(embed=embed)
 
     @codingame.command(name="clash_of_code", aliases=["clash", "coc"])
-    async def clash_of_code(self, ctx: commands.Context, public_handle: str):
+    async def clash_of_code(
+        self, ctx: commands.Context,
+        public_handle: commands.clean_content(fix_channel_mentions=True)
+    ):
         """Get a Clash of Code from its public handle."""
         try:
             clash_of_code: aiocodingame.ClashOfCode = await self.client.get_clash_of_code(public_handle)
