@@ -158,7 +158,7 @@ class Bot(commands.Bot):
         return ', '.join([obj.name if isinstance(obj, discord.Role) else str(obj).replace('_', ' ') for obj in list_])
 
     @staticmethod
-    def embed(*, ctx=None, title, description, color=0xFCD207) -> discord.Embed:
+    def embed(*, ctx=None, title, description="", color=0xFCD207) -> discord.Embed:
         embed = discord.Embed(
             title=title,
             description=description,
