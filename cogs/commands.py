@@ -1,17 +1,48 @@
+import discord
 from discord.ext import commands
 
+import asyncio
 
-def setup(bot: commands.Bot):
+from core import Bot
+
+
+def setup(bot: Bot):
     bot.add_cog(Commands(bot=bot))
 
 
 class Commands(commands.Cog):
     def __init__(self, bot):
-        self.bot = bot
+        self.bot: Bot = bot
+        self.logger = self.bot.logger.getChild("commands")
+        self.logger.info("cog `Commands` loaded")
+
+    def cog_unload(self):
+        self.logger.info("cog `Commands` unloaded")
+
+    # ---------------------------------------------------------------------------------------------
+    # Helper methods
 
     @property
     def invite_link(self):
         return "https://discord.com/oauth2/authorize?client_id=759474863525330944&permissions=268528720&scope=bot"
+
+    # ---------------------------------------------------------------------------------------------
+    # Commands
+
+    @commands.command()
+    async def logout(self, ctx: commands.Context, seconds_before_logout: int = 0):
+        await asyncio.sleep(seconds_before_logout)
+        try:
+            await self.bot.logout()
+        except Exception as error:
+            embed = self.bot.embed(ctx=ctx, title="Logout failed", color=discord.Colour.red())
+            await ctx.send(embed=embed)
+            await self.bot.handle_error(error, ctx=ctx)
+
+    @commands.command()
+    async def ping(self, ctx: commands.Context):
+        """Check the bot latency"""
+        await ctx.send(f"Pong! `{int(self.bot.latency*1000)}ms`")
 
     @commands.command(name="invite")
     async def invite(self, ctx: commands.Context):
