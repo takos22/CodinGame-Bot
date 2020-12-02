@@ -5,6 +5,7 @@ import itertools
 import logging
 
 from core import Bot
+from utils import color
 
 
 class Help(commands.HelpCommand):
@@ -99,13 +100,13 @@ class Help(commands.HelpCommand):
                 embed.add_field(
                     name=f"**{category}**",
                     value=("**Commands:** " + ", ".join(cmd_names) + "\n") * bool(cmd_names)
-                    + (  # noqa: W503
+                    + (
                         "**Groups: **\n"
-                        + "\n".join(  # noqa: W503
+                        + "\n".join(
                             f"{group}: {names}" for group, names in group_names.items()
                         )
                     )
-                    * bool(group_names),  # noqa: W503
+                    * bool(group_names),
                     inline=False,
                 )
 
@@ -198,11 +199,11 @@ class NewHelp(commands.Cog, name="Help Command"):
         bot.help_command.cog = self
         bot.get_command("help").hidden = True
 
-        self.logger.info("cog `Help Command` loaded")
+        self.logger.info(color("cog `Help Command` loaded", "blue"))
 
     def cog_unload(self):
         self.bot.help_command = self._original_help_command
-        self.logger.info("cog `Help Command` unloaded")
+        self.logger.info(color("cog `Help Command` unloaded", "yellow"))
 
 
 def setup(bot: Bot):
