@@ -5,7 +5,9 @@ from dotenv import load_dotenv
 class Config:
     load_dotenv()
 
-    TOKEN = os.environ.get("TOKEN")
+    TOKEN = os.environ.get("TOKEN", None)
+    if TOKEN is None:
+        raise RuntimeError("`TOKEN` environment variable isn't set")
 
     DEFAULT_COGS = [
         "jishaku",
