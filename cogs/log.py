@@ -6,7 +6,7 @@ import typing
 from functools import wraps
 
 from core import Bot
-from utils import indent
+from utils import indent, color
 
 
 def setup(bot: Bot):
@@ -40,10 +40,10 @@ class Log(commands.Cog):
     def __init__(self, bot):
         self.bot: Bot = bot
         self.logger = self.bot.logger.getChild("log")
-        self.logger.info("cog `Log` loaded")
+        self.logger.info(color("cog `Log` loaded", "blue"))
 
     def cog_unload(self):
-        self.logger.info("cog `Log` unloaded")
+        self.logger.info(color("cog `Log` unloaded", "yellow"))
 
     # ---------------------------------------------------------------------------------------------
     # Class methods
@@ -117,7 +117,7 @@ class Log(commands.Cog):
 
         self.logger.info(
             f"message edited by user `{before.author}` in channel `{before.channel}`\n"
-            + indent(f"before: {before.content}\nafter: {after.content}", 49)  # noqa: W503
+            + indent(f"before: {before.content}\nafter: {after.content}", 49)
         )
 
         if before.guild is None:
@@ -158,7 +158,7 @@ class Log(commands.Cog):
 
         self.logger.info(
             f"message deleted by user `{message.author}` in channel `{message.channel}`\n"
-            + indent(f"content: {message.content}", 49)  # noqa: W503
+            + indent(f"content: {message.content}", 49)
         )
 
         if message.guild is None:
@@ -375,17 +375,17 @@ class Log(commands.Cog):
             name="Account age",
             value=(
                 (str(account_age.days) + " days, " if account_age.days else "")
-                + (  # noqa: W503
+                + (
                     str(account_age.seconds // 3600) + " hours, "
                     if account_age.seconds >= 3600
                     else ""
                 )
-                + (  # noqa: W503
+                + (
                     str(account_age.seconds % 3600 // 60) + " mins, "
                     if account_age.seconds % 3600 >= 60
                     else ""
                 )
-                + (  # noqa: W503
+                + (
                     str(account_age.seconds % 3600 % 60) + " sec"
                     if account_age.seconds % 3600 % 60
                     else ""
@@ -412,15 +412,13 @@ class Log(commands.Cog):
             name="Time stayed",
             value=(
                 (str(stay_time.days) + " days, " if stay_time.days else "")
-                + (  # noqa: W503
-                    str(stay_time.seconds // 3600) + " hours, " if stay_time.seconds >= 3600 else ""
-                )
-                + (  # noqa: W503
+                + (str(stay_time.seconds // 3600) + " hours, " if stay_time.seconds >= 3600 else "")
+                + (
                     str(stay_time.seconds % 3600 // 60) + " mins, "
                     if stay_time.seconds % 3600 >= 60
                     else ""
                 )
-                + (  # noqa: W503
+                + (
                     str(stay_time.seconds % 3600 % 60) + " sec"
                     if stay_time.seconds % 3600 % 60
                     else ""
@@ -538,9 +536,7 @@ class Log(commands.Cog):
                 f"Member **{member.mention}** left voice channel **{before.channel.mention}**"
             )
         elif before.channel != after.channel:
-            self.logger.info(
-                f"member `{member}` moved vc: #{before.channel} -> #{after.channel}"
-            )
+            self.logger.info(f"member `{member}` moved vc: #{before.channel} -> #{after.channel}")
             log_embed.description = (
                 f"Member **{member.mention}** moved from voice channel "
                 f"**{before.channel.mention}** to **{after.channel.mention}**"

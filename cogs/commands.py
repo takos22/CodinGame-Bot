@@ -4,6 +4,7 @@ from discord.ext import commands
 import asyncio
 
 from core import Bot
+from utils import color
 
 
 def setup(bot: Bot):
@@ -14,17 +15,20 @@ class Commands(commands.Cog):
     def __init__(self, bot):
         self.bot: Bot = bot
         self.logger = self.bot.logger.getChild("commands")
-        self.logger.info("cog `Commands` loaded")
+        self.logger.info(color("cog `Commands` loaded", "blue"))
 
     def cog_unload(self):
-        self.logger.info("cog `Commands` unloaded")
+        self.logger.info(color("cog `Commands` unloaded", "yellow"))
 
     # ---------------------------------------------------------------------------------------------
     # Helper methods
 
     @property
     def invite_link(self):
-        return "https://discord.com/oauth2/authorize?client_id=759474863525330944&permissions=268528720&scope=bot"
+        return (
+            "https://discord.com/oauth2/authorize?client_id=759474863525330944&"
+            "permissions=268528720&scope=bot"
+        )
 
     # ---------------------------------------------------------------------------------------------
     # Commands
@@ -32,6 +36,7 @@ class Commands(commands.Cog):
     @commands.command()
     async def logout(self, ctx: commands.Context, seconds_before_logout: int = 0):
         await asyncio.sleep(seconds_before_logout)
+        self.logger.warning(color("logging out", "red"))
         try:
             await self.bot.logout()
         except Exception as error:

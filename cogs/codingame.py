@@ -4,6 +4,8 @@ from discord.ext import commands
 import aiocodingame
 
 from core import Bot
+from utils import color
+
 
 def setup(bot: Bot):
     bot.add_cog(CodinGame(bot=bot))
@@ -13,10 +15,10 @@ class CodinGame(commands.Cog):
     def __init__(self, bot):
         self.bot: Bot = bot
         self.logger = self.bot.logger.getChild("commands")
-        self.logger.info("cog `CodinGame` loaded")
+        self.logger.info(color("cog `CodinGame` loaded", "blue"))
 
     def cog_unload(self):
-        self.logger.info("cog `CodinGame` unloaded")
+        self.logger.info(color("cog `CodinGame` unloaded", "yellow"))
 
     async def start(self):
         self.client = aiocodingame.Client()
@@ -29,11 +31,7 @@ class CodinGame(commands.Cog):
 
     @staticmethod
     def clean(text: str):
-        return (
-            text.replace("_", r"\_")
-            .replace("*", r"\*")
-            .replace("`", r"\`")
-        )
+        return text.replace("_", r"\_").replace("*", r"\*").replace("`", r"\`")
 
     # ---------------------------------------------------------------------------------------------
     # Commands
@@ -46,8 +44,9 @@ class CodinGame(commands.Cog):
 
     @codingame.command(name="codingamer", aliases=["user", "c"])
     async def codingamer(
-        self, ctx: commands.Context,
-        public_handle: commands.clean_content(fix_channel_mentions=True)
+        self,
+        ctx: commands.Context,
+        public_handle: commands.clean_content(fix_channel_mentions=True),
     ):
         """Get a Codingamer from his public handle."""
         try:
@@ -57,7 +56,8 @@ class CodinGame(commands.Cog):
         else:
             embed = self.bot.embed(
                 ctx=ctx,
-                title=f"**Codingamer:** {self.clean(codingamer.pseudo or codingamer.public_handle)}",
+                title="**Codingamer:** "
+                + self.clean(codingamer.pseudo or codingamer.public_handle),
                 description=self.clean(f"{codingamer.tagline or ''}\n{codingamer.biography or ''}"),
             )
 
@@ -81,12 +81,15 @@ class CodinGame(commands.Cog):
 
     @codingame.command(name="clash_of_code", aliases=["clash", "coc"])
     async def clash_of_code(
-        self, ctx: commands.Context,
-        public_handle: commands.clean_content(fix_channel_mentions=True)
+        self,
+        ctx: commands.Context,
+        public_handle: commands.clean_content(fix_channel_mentions=True),
     ):
         """Get a Clash of Code from its public handle."""
         try:
-            clash_of_code: aiocodingame.ClashOfCode = await self.client.get_clash_of_code(public_handle)
+            clash_of_code: aiocodingame.ClashOfCode = await self.client.get_clash_of_code(
+                public_handle
+            )
         except (ValueError, aiocodingame.ClashOfCodeNotFound) as error:
             return await ctx.send(self.clean(str(error)))
         else:
@@ -102,8 +105,7 @@ class CodinGame(commands.Cog):
             embed.add_field(name="Public", value=clash_of_code.public)
             embed.add_field(
                 name="Possible modes",
-                value=", ".join(clash_of_code.modes)
-                if clash_of_code.modes is not None else "Any",
+                value=", ".join(clash_of_code.modes) if clash_of_code.modes is not None else "Any",
             )
             embed.add_field(
                 name="Programming languages",
@@ -126,7 +128,8 @@ class CodinGame(commands.Cog):
                 embed.add_field(name="Mode", value=clash_of_code.mode)
 
             embed.add_field(
-                name="Players", value=", ".join(self.clean(player.pseudo) for player in clash_of_code.players)
+                name="Players",
+                value=", ".join(self.clean(player.pseudo) for player in clash_of_code.players),
             )
             await ctx.send(embed=embed)
 
@@ -150,8 +153,7 @@ class CodinGame(commands.Cog):
         embed.add_field(name="Public", value=clash_of_code.public)
         embed.add_field(
             name="Possible modes",
-            value=", ".join(clash_of_code.modes)
-            if clash_of_code.modes is not None else "Any"
+            value=", ".join(clash_of_code.modes) if clash_of_code.modes is not None else "Any",
         )
         embed.add_field(
             name="Programming languages",
@@ -173,5 +175,8 @@ class CodinGame(commands.Cog):
         if clash_of_code.started:
             embed.add_field(name="Mode", value=clash_of_code.mode)
 
-        embed.add_field(name="Players", value=", ".join(self.clean(player.pseudo) for player in clash_of_code.players))
+        embed.add_field(
+            name="Players",
+            value=", ".join(self.clean(player.pseudo) for player in clash_of_code.players),
+        )
         await ctx.send(embed=embed)
