@@ -1,30 +1,33 @@
 import discord
 from discord.ext import commands
+from discord.ext.commands.core import command
 from discord.ext.commands.errors import (
-    CheckFailure,
     BadUnionArgument,
-    CommandOnCooldown,
-    PrivateMessageOnly,
-    NoPrivateMessage,
-    MissingRequiredArgument,
-    ConversionError,
-    BotMissingPermissions,
-    MissingPermissions,
     BotMissingAnyRole,
+    BotMissingPermissions,
     BotMissingRole,
-    MissingRole,
+    CheckFailure,
+    CommandOnCooldown,
+    ConversionError,
     MissingAnyRole,
+    MissingPermissions,
+    MissingRequiredArgument,
+    MissingRole,
+    NoPrivateMessage,
+    PrivateMessageOnly,
 )
 
 import datetime
+import logging
+import logging.handlers
 import os
+import pprint
+import sys
+import traceback
+import typing
 
-initial_cogs = [
-    "jishaku",
-    "cogs._help",
-    "cogs.commands",
-    "cogs.codingame",
-]
+from config import Config
+from utils import indent, shorten, color
 
 os.environ["JISHAKU_NO_UNDERSCORE"] = "True"
 os.environ["JISHAKU_HIDE"] = "True"
@@ -32,28 +35,102 @@ os.environ["JISHAKU_HIDE"] = "True"
 
 class Bot(commands.Bot):
     def __init__(self, **kwargs):
-        super().__init__(command_prefix=kwargs.pop("command_prefix", "!"), case_insensitive=True, **kwargs)
+        super().__init__(
+            command_prefix=kwargs.pop("command_prefix", "!"),
+            case_insensitive=True,
+            intents=discord.Intents.all(),
+            **kwargs,
+        )
         self.start_time = datetime.datetime.utcnow()
-        self.owner_id = 401346079733317634
+        self.config: Config = kwargs.pop("config")
+        self.owner_id = self.config.OWNER
+
+        self.init_log()
+
+    def init_log(self):
+        self.logger = logging.getLogger("bot")
+        self.logger.setLevel(logging.INFO)
+        self.logger.propagate = False
+
+        # Formatters
+        formatter = logging.Formatter(
+            fmt="[{asctime}.{msecs:0>3.0f}] {name:<15}: {levelname}: {message}",
+            datefmt="%d/%m/%Y %H:%M:%S",
+            style="{",
+        )
+        error_formatter = logging.Formatter(
+            fmt=(
+                "[{asctime}.{msecs:0>3.0f}] {name:<15}: {levelname}: "
+                "in {funcName} at line {lineno}: {message}"
+            ),
+            datefmt="%d/%m/%Y %H:%M:%S",
+            style="{",
+        )
+
+        # INFO file handler
+        file_handler = logging.FileHandler("log/root.log", mode="w", encoding="utf-8")
+        file_handler.setLevel(logging.INFO)
+
+        file_handler.setFormatter(formatter)
+        self.logger.addHandler(file_handler)
+
+        # DEBUG console handler
+        console_handler = logging.StreamHandler(sys.stdout)
+        console_handler.setLevel(logging.DEBUG)
+
+        console_handler.setFormatter(formatter)
+        self.logger.addHandler(console_handler)
+
+        # ERROR file handler
+        error_handler = logging.handlers.RotatingFileHandler(
+            "log/error.log", maxBytes=2 ** 16, backupCount=10, encoding="utf-8"
+        )
+        error_handler.setLevel(logging.ERROR)
+
+        error_handler.setFormatter(error_formatter)
+        self.logger.addHandler(error_handler)
+
+        # Child loggers
+        self.message_logger = self.logger.getChild("message")
+        self.command_logger = self.logger.getChild("command")
+
+    # ---------------------------------------------------------------------------------------------
+    # Events
 
     async def on_ready(self):
-        print(f"Successfully logged in as {self.user}")
+        self.logger.info(color(f"logged in as user `{self.user}`", "green"))
 
-        for ext in initial_cogs:
+        for ext in self.config.DEFAULT_COGS:
             self.load_extension(ext)
         await self.cogs["CodinGame"].start()
-        print("Successfully loaded cogs")
+        self.logger.info(color("all cogs loaded", "green"))
 
         await self.change_presence(activity=discord.Game(name="!help"))
 
-    async def on_message(self, message):
+    async def logout(self):
+        await self.cogs["CodinGame"].close()
+        await super().logout()
+        self.logger.info(color("logged out", "green"))
+
+    async def on_message(self, message: discord.Message):
         await self.wait_until_ready()
 
-        print(f"{message.channel}: {message.author}: {message.clean_content}")
+        message_text = indent(
+            message.clean_content
+            or "\n".join([a.url for a in message.attachments])  # noqa: W503
+            or "\n".join(  # noqa: W503
+                [pprint.pformat(e.to_dict(), width=120) for e in message.embeds]
+            ),
+            49,
+        )
+
+        self.message_logger.info(
+            f"user `{message.author}` in channel `{message.channel}`:\n{message_text}"
+        )
 
         await self.process_commands(message)
 
-    async def process_commands(self, message):
+    async def process_commands(self, message: discord.Message):
         if message.author.bot:
             return
 
@@ -65,16 +142,13 @@ class Bot(commands.Bot):
         try:
             await self.invoke(ctx)
         finally:
-            print(f"@{ctx.author} used {ctx.command.name} command in #{ctx.channel}")
+            self.command_logger.info(
+                f"user `{ctx.author}` in channel `{ctx.channel}`: command "
+                f"`{(ctx.command.parent.name + ' ') if ctx.command.parent else ''}"
+                f"{ctx.command.name}` used"
+            )
 
-    async def logout(self):
-        await self.cogs["CodinGame"].close()
-        await super().logout()
-
-    async def on_disconnect(self):
-        print("Successfully logged out")
-
-    async def on_command_error(self, ctx, exception):
+    async def on_command_error(self, ctx: commands.Context, exception: Exception):
         await self.wait_until_ready()
 
         error = getattr(exception, "original", exception)
@@ -82,10 +156,12 @@ class Bot(commands.Bot):
         if hasattr(ctx.command, "on_error"):
             return
 
-        elif isinstance(error, CheckFailure):
+        self.command_logger.warning(f"{ctx.command.name} raised exception: {error}")
+
+        if isinstance(error, CheckFailure):
             return
 
-        if isinstance(
+        elif isinstance(
             error,
             (
                 BadUnionArgument,
@@ -100,12 +176,14 @@ class Bot(commands.Bot):
 
         elif isinstance(error, BotMissingPermissions):
             return await ctx.send(
-                "I am missing these permissions to do this command:" f"\n{self.lts(error.missing_perms)}"
+                "I am missing these permissions to do this command:"
+                f"\n{self.lts(error.missing_perms)}"
             )
 
         elif isinstance(error, MissingPermissions):
             return await ctx.send(
-                "You are missing these permissions to do this command:" f"\n{self.lts(error.missing_perms)}"
+                "You are missing these permissions to do this command:"
+                f"\n{self.lts(error.missing_perms)}"
             )
 
         elif isinstance(error, (BotMissingAnyRole, BotMissingRole)):
@@ -119,51 +197,69 @@ class Bot(commands.Bot):
                 f"You are missing these roles to do this command:"
                 f"\n{self.lts(error.missing_roles or [error.missing_role])}"
             )
-
         else:
-            error_embed = discord.Embed(
-                title="Error you didn't think of",
-                description=f"{ctx.author} raised this error that you didnt think of.",
-                colour=0xFF0000,
-                timestamp=datetime.datetime.utcnow(),
+            await self.handle_error(error)
+
+    # ---------------------------------------------------------------------------------------------
+    # Helper methods
+
+    async def handle_error(self, error: Exception, *, ctx: commands.Context = None):
+        tb = traceback.format_exception(type(error), error, error.__traceback__)
+        self.logger.error("Unhandled error:\n" + "".join(tb))
+        stack = traceback.extract_tb(error.__traceback__)
+
+        error_embed = discord.Embed(
+            title="Unhandled error",
+            description=f"`{stack[-1].name}` function raised an unhandled error",
+            colour=discord.Colour.red(),
+            timestamp=datetime.datetime.utcnow(),
+        )
+
+        error_embed.set_author(
+            name=f'File "{stack[-1].filename}", line {stack[-1].lineno} in {stack[-1].name}'
+        )
+        error_embed.add_field(name="Type", value=f"`{type(error).__name__}`", inline=False)
+        error_embed.add_field(name="Error", value=f"`{error}`", inline=False)
+        error_embed.add_field(
+            name="Full traceback",
+            value=f"```py\n{shorten(''.join(tb), width=1015, placeholder='...')}```",
+            inline=False,
+        )
+
+        if ctx:
+            error_embed.description = f"`{ctx.command.name}` command raised an unhandled error"
+            error_embed.add_field(name="Channel", value=ctx.channel.mention, inline=False)
+            error_embed.add_field(
+                name="Message", value=f"[{ctx.message.id}]({ctx.message.jump_url})", inline=False
             )
-            error_embed.set_author(name="on_command_error")
-            error_embed.add_field(name="Type", value=type(error).__name__)
-            error_embed.add_field(name="Error", value=str(error))
-            error_embed.add_field(name="Channel", value=ctx.channel.mention)
-            error_embed.add_field(name="Message", value=f"[{ctx.message.id}]({ctx.message.jump_url})")
-            await self.get_user(self.owner_id).send(embed=error_embed)
-            raise error
 
-    async def on_guild_join(self, guild: discord.Guild):
-        for channel in guild.channels:
-            try:
-                invite: discord.Invite = await channel.create_invite()
-            except discord.NotFound:
-                continue
-            else:
-                break
-        print(f"Joined guild {guild.name}, invite: {invite.url}")
-        embed = self.embed(title=f"Joined guild {guild.name!r}", description=f"[Join here]({invite.url})")
-        embed.set_author(name=guild.id)
-        embed.add_field(name="Owner", value=guild.owner)
-        embed.add_field(name="Members", value=guild.member_count)
-        embed.add_field(name="Channels", value=len(guild.channels))
-        await self.get_user(self.owner_id).send(embed=embed)
+        await self.owner.send(embed=error_embed)
+
+    @property
+    def owner(self) -> discord.User:
+        return self.get_user(self.owner_id)
 
     @staticmethod
-    def lts(list_: list):
+    def lts(list_: list) -> str:
         """List to string.
-           For use in `self.on_command_error`"""
-        return ', '.join([obj.name if isinstance(obj, discord.Role) else str(obj).replace('_', ' ') for obj in list_])
+        For use in `self.on_command_error`"""
+        return ", ".join(
+            [
+                obj.name if isinstance(obj, discord.Role) else str(obj).replace("_", " ")
+                for obj in list_
+            ]
+        )
 
     @staticmethod
-    def embed(*, ctx=None, title, description="", color=0xFCD207) -> discord.Embed:
+    def embed(
+        *,
+        ctx: commands.Context = None,
+        title: str = None,
+        description: str = None,
+        color: typing.Union[discord.Colour, int] = 0xFCD207,
+    ) -> discord.Embed:
         embed = discord.Embed(
-            title=title,
-            description=description,
-            colour=color,
-            timestamp=datetime.datetime.utcnow()
+            title=title, description=description, colour=color, timestamp=datetime.datetime.utcnow()
         )
         if ctx:
             embed.set_footer(icon_url=ctx.author.avatar_url, text=f"Called by: {ctx.author}")
