@@ -1,6 +1,5 @@
 import discord
 from discord.ext import commands
-from discord.ext.commands.core import command
 from discord.ext.commands.errors import (
     BadUnionArgument,
     BotMissingAnyRole,
@@ -59,10 +58,7 @@ class Bot(commands.Bot):
             style="{",
         )
         error_formatter = logging.Formatter(
-            fmt=(
-                "[{asctime}.{msecs:0>3.0f}] {name:<15}: {levelname}: "
-                "in {funcName} at line {lineno}: {message}"
-            ),
+            fmt=("[{asctime}.{msecs:0>3.0f}] {name:<15}: {levelname}: " "in {funcName} at line {lineno}: {message}"),
             datefmt="%d/%m/%Y %H:%M:%S",
             style="{",
         )
@@ -115,17 +111,18 @@ class Bot(commands.Bot):
     async def on_message(self, message: discord.Message):
         await self.wait_until_ready()
 
+        if message.author.bot:
+            return
+
         message_text = indent(
             message.clean_content
             or "\n".join([a.url for a in message.attachments])  # noqa: W503
-            or "\n".join(  # noqa: W503
-                [pprint.pformat(e.to_dict(), width=120) for e in message.embeds]
-            ),
+            or "\n".join([pprint.pformat(e.to_dict(), width=120) for e in message.embeds]),  # noqa: W503
             49,
         )
 
         self.message_logger.info(
-            f"user `{message.author}` in channel `{message.channel}`:\n{message_text}"
+            color(f"user `{message.author}` in channel `{message.channel}`:\n", "cyan") + message_text
         )
 
         await self.process_commands(message)
@@ -139,14 +136,16 @@ class Bot(commands.Bot):
         if ctx.command is None:
             return
 
-        try:
-            await self.invoke(ctx)
-        finally:
-            self.command_logger.info(
+        self.command_logger.info(
+            color(
                 f"user `{ctx.author}` in channel `{ctx.channel}`: command "
                 f"`{(ctx.command.parent.name + ' ') if ctx.command.parent else ''}"
-                f"{ctx.command.name}` used"
+                f"{ctx.command.name}` used",
+                "purple",
             )
+        )
+
+        await self.invoke(ctx)
 
     async def on_command_error(self, ctx: commands.Context, exception: Exception):
         await self.wait_until_ready()
@@ -176,14 +175,12 @@ class Bot(commands.Bot):
 
         elif isinstance(error, BotMissingPermissions):
             return await ctx.send(
-                "I am missing these permissions to do this command:"
-                f"\n{self.lts(error.missing_perms)}"
+                "I am missing these permissions to do this command:" f"\n{self.lts(error.missing_perms)}"
             )
 
         elif isinstance(error, MissingPermissions):
             return await ctx.send(
-                "You are missing these permissions to do this command:"
-                f"\n{self.lts(error.missing_perms)}"
+                "You are missing these permissions to do this command:" f"\n{self.lts(error.missing_perms)}"
             )
 
         elif isinstance(error, (BotMissingAnyRole, BotMissingRole)):
@@ -205,7 +202,7 @@ class Bot(commands.Bot):
 
     async def handle_error(self, error: Exception, *, ctx: commands.Context = None):
         tb = traceback.format_exception(type(error), error, error.__traceback__)
-        self.logger.error("Unhandled error:\n" + "".join(tb))
+        self.logger.error(color("Unhandled error:\n" + "".join(tb), "red"))
         stack = traceback.extract_tb(error.__traceback__)
 
         error_embed = discord.Embed(
@@ -215,9 +212,7 @@ class Bot(commands.Bot):
             timestamp=datetime.datetime.utcnow(),
         )
 
-        error_embed.set_author(
-            name=f'File "{stack[-1].filename}", line {stack[-1].lineno} in {stack[-1].name}'
-        )
+        error_embed.set_author(name=f'File "{stack[-1].filename}", line {stack[-1].lineno} in {stack[-1].name}')
         error_embed.add_field(name="Type", value=f"`{type(error).__name__}`", inline=False)
         error_embed.add_field(name="Error", value=f"`{error}`", inline=False)
         error_embed.add_field(
@@ -229,9 +224,7 @@ class Bot(commands.Bot):
         if ctx:
             error_embed.description = f"`{ctx.command.name}` command raised an unhandled error"
             error_embed.add_field(name="Channel", value=ctx.channel.mention, inline=False)
-            error_embed.add_field(
-                name="Message", value=f"[{ctx.message.id}]({ctx.message.jump_url})", inline=False
-            )
+            error_embed.add_field(name="Message", value=f"[{ctx.message.id}]({ctx.message.jump_url})", inline=False)
 
         await self.owner.send(embed=error_embed)
 
@@ -243,12 +236,7 @@ class Bot(commands.Bot):
     def lts(list_: list) -> str:
         """List to string.
         For use in `self.on_command_error`"""
-        return ", ".join(
-            [
-                obj.name if isinstance(obj, discord.Role) else str(obj).replace("_", " ")
-                for obj in list_
-            ]
-        )
+        return ", ".join([obj.name if isinstance(obj, discord.Role) else str(obj).replace("_", " ") for obj in list_])
 
     @staticmethod
     def embed(
@@ -258,9 +246,7 @@ class Bot(commands.Bot):
         description: str = None,
         color: typing.Union[discord.Colour, int] = 0xFCD207,
     ) -> discord.Embed:
-        embed = discord.Embed(
-            title=title, description=description, colour=color, timestamp=datetime.datetime.utcnow()
-        )
+        embed = discord.Embed(title=title, description=description, colour=color, timestamp=datetime.datetime.utcnow())
         if ctx:
             embed.set_footer(icon_url=ctx.author.avatar_url, text=f"Called by: {ctx.author}")
         return embed
