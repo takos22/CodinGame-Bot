@@ -1,14 +1,22 @@
+import discord
 from discord.ext import commands
+
 import aiocodingame
 
+from core import Bot
 
-def setup(bot: commands.Bot):
+def setup(bot: Bot):
     bot.add_cog(CodinGame(bot=bot))
 
 
 class CodinGame(commands.Cog):
     def __init__(self, bot):
-        self.bot = bot
+        self.bot: Bot = bot
+        self.logger = self.bot.logger.getChild("commands")
+        self.logger.info("cog `CodinGame` loaded")
+
+    def cog_unload(self):
+        self.logger.info("cog `CodinGame` unloaded")
 
     async def start(self):
         self.client = aiocodingame.Client()
@@ -16,13 +24,19 @@ class CodinGame(commands.Cog):
     async def close(self):
         await self.client.close()
 
+    # ---------------------------------------------------------------------------------------------
+    # Helper methods
+
     @staticmethod
-    def clean(name: str):
+    def clean(text: str):
         return (
-            name.replace("_", r"\_")
+            text.replace("_", r"\_")
             .replace("*", r"\*")
             .replace("`", r"\`")
         )
+
+    # ---------------------------------------------------------------------------------------------
+    # Commands
 
     @commands.group(name="codingame", aliases=["cg"])
     async def codingame(self, ctx: commands.Context):
