@@ -4,12 +4,12 @@ from core import Bot
 from config import Config
 
 async def main():
-    bot = Bot()
+    bot = Bot(config=Config)
 
     try:
         await bot.start(Config.TOKEN)
     except KeyboardInterrupt:
-        await bot.close()
+        await bot.logout()
 
 if __name__ == "__main__":
     loop = asyncio.get_event_loop()
