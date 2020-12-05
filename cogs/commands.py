@@ -34,7 +34,7 @@ class Commands(commands.Cog):
     # Commands
 
     @commands.command()
-    @commands.is_owner
+    @commands.is_owner()
     async def logout(self, ctx: commands.Context, seconds_before_logout: int = 0):
         await asyncio.sleep(seconds_before_logout)
         self.logger.warning(color("logging out", "red"))
