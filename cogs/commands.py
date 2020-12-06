@@ -50,7 +50,7 @@ class Commands(commands.Cog):
         """Check the bot latency"""
         await ctx.send(f"Pong! `{int(self.bot.latency*1000)}ms`")
 
-    @commands.command(name="invite")
+    @commands.command()
     async def invite(self, ctx: commands.Context):
         embed = self.bot.embed(
             ctx=ctx,
