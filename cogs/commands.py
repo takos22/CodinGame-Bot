@@ -38,6 +38,7 @@ class Commands(commands.Cog):
     async def logout(self, ctx: commands.Context, seconds_before_logout: int = 0):
         await asyncio.sleep(seconds_before_logout)
         self.logger.warning(color("logging out", "red"))
+        await ctx.send("**Logging out...**")
         try:
             await self.bot.logout()
         except Exception as error:
