@@ -4,6 +4,7 @@ from discord.ext import commands
 import datetime
 
 from core import Bot
+from utils import color
 
 
 def setup(bot: Bot):
@@ -14,10 +15,10 @@ class Moderation(commands.Cog):
     def __init__(self, bot):
         self.bot: Bot = bot
         self.logger = self.bot.logger.getChild("moderation")
-        self.logger.info("cog `Moderation` loaded")
+        self.logger.info(color("cog `Moderation` loaded", "blue"))
 
     def cog_unload(self):
-        self.logger.info("cog `Moderation` unloaded")
+        self.logger.info(color("cog `Moderation` unloaded", "yellow"))
 
     # ---------------------------------------------------------------------------------------------
     # Class methods
