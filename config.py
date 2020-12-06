@@ -15,6 +15,7 @@ class Config:
         "cogs.commands",
         "cogs.codingame",
         "cogs.log",
+        "cogs.moderation",
     ]
 
     OWNER = 401346079733317634
