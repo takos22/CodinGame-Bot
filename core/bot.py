@@ -44,11 +44,11 @@ class Bot(commands.Bot):
         self.config: Config = kwargs.pop("config")
         self.owner_id = self.config.OWNER
 
-        self.init_log()
+        self.init_log(kwargs.pop("log_level", logging.INFO))
 
-    def init_log(self):
+    def init_log(self, level=logging.INFO):
         self.logger = logging.getLogger("bot")
-        self.logger.setLevel(logging.INFO)
+        self.logger.setLevel(level)
         self.logger.propagate = False
 
         # Formatters
@@ -70,12 +70,19 @@ class Bot(commands.Bot):
         file_handler.setFormatter(formatter)
         self.logger.addHandler(file_handler)
 
-        # DEBUG console handler
-        console_handler = logging.StreamHandler(sys.stdout)
-        console_handler.setLevel(logging.DEBUG)
+        # DEBUG stdout handler
+        stdout_handler = logging.StreamHandler(sys.stdout)
+        stdout_handler.setLevel(logging.DEBUG)
 
-        console_handler.setFormatter(formatter)
-        self.logger.addHandler(console_handler)
+        stdout_handler.setFormatter(formatter)
+        self.logger.addHandler(stdout_handler)
+
+        # ERROR stderr handler
+        stderr_handler = logging.StreamHandler(sys.stderr)
+        stderr_handler.setLevel(logging.ERROR)
+
+        stderr_handler.setFormatter(error_formatter)
+        self.logger.addHandler(stderr_handler)
 
         # ERROR file handler
         error_handler = logging.handlers.RotatingFileHandler(
