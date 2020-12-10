@@ -105,12 +105,12 @@ class CodinGame(commands.Cog):
             embed.add_field(name="Public", value=clash_of_code.public)
             embed.add_field(
                 name="Possible modes",
-                value=", ".join(clash_of_code.modes) if clash_of_code.modes is not None else "Any",
+                value=", ".join(clash_of_code.modes) if clash_of_code.modes else "Any",
             )
             embed.add_field(
                 name="Programming languages",
                 value=", ".join(clash_of_code.programming_languages)
-                if clash_of_code.programming_languages is not None
+                if clash_of_code.programming_languages
                 else "All",
             )
 
