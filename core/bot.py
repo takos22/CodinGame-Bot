@@ -58,10 +58,7 @@ class Bot(commands.Bot):
             style="{",
         )
         error_formatter = logging.Formatter(
-            fmt=(
-                "[{asctime}.{msecs:0>3.0f}] {name:<15}: {levelname}: "
-                "in {funcName} at line {lineno}: {message}"
-            ),
+            fmt="[{asctime}.{msecs:0>3.0f}] {name:<15}: {levelname}:\n{message}",
             datefmt="%d/%m/%Y %H:%M:%S",
             style="{",
         )
