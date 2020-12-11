@@ -51,9 +51,10 @@ class Commands(commands.Cog):
             await ctx.send(embed=embed)
             await self.bot.handle_error(error, ctx=ctx)
 
-    @commands.command()
+    @commands.command(aliases=["latency"])
     async def ping(self, ctx: commands.Context):
         """Check the bot latency"""
+        self.logger.info(color(f"bot ping is `{int(self.bot.latency*1000)}ms`", "yellow"))
         await ctx.send(f"Pong! `{int(self.bot.latency*1000)}ms`")
 
     @commands.command()
