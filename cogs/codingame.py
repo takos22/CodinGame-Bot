@@ -46,11 +46,11 @@ class CodinGame(commands.Cog):
     async def codingamer(
         self,
         ctx: commands.Context,
-        public_handle: commands.clean_content(fix_channel_mentions=True),
+        codingamer: commands.clean_content(fix_channel_mentions=True),
     ):
-        """Get a Codingamer from his public handle."""
+        """Get a Codingamer from its username or public handle."""
         try:
-            codingamer: aiocodingame.CodinGamer = await self.client.get_codingamer(public_handle)
+            codingamer: aiocodingame.CodinGamer = await self.client.get_codingamer(codingamer)
         except (ValueError, aiocodingame.CodinGamerNotFound) as error:
             return await ctx.send(self.clean(str(error)))
         else:
