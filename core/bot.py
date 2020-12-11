@@ -46,6 +46,8 @@ class Bot(commands.Bot):
 
         self.init_log(kwargs.pop("log_level", logging.INFO))
 
+        self.logger.info(color("bot started", "green"))
+
     def init_log(self, level=logging.INFO):
         self.logger = logging.getLogger("bot")
         self.logger.setLevel(level)
