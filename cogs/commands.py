@@ -35,7 +35,12 @@ class Commands(commands.Cog):
 
     @commands.command(hidden=True)
     @commands.is_owner()
-    async def logout(self, ctx: commands.Context, seconds_before_logout: int = 0):
+    async def logout(
+        self, ctx: commands.Context, env: str = "PROD", seconds_before_logout: int = 0
+    ):
+        if env.upper() != self.bot.config.ENV:
+            return
+
         await asyncio.sleep(seconds_before_logout)
         self.logger.warning(color("logging out", "red"))
         await ctx.send("**Logging out...**")

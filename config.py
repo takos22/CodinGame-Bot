@@ -9,6 +9,8 @@ class Config:
     if TOKEN is None:
         raise RuntimeError("`TOKEN` environment variable isn't set")
 
+    ENV = os.environ.get("ENV", "PROD")
+
     DEFAULT_COGS = [
         "jishaku",
         "cogs._help",
