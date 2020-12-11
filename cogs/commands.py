@@ -38,6 +38,8 @@ class Commands(commands.Cog):
     async def logout(
         self, ctx: commands.Context, env: str = "PROD", seconds_before_logout: int = 0
     ):
+        """Logout the bot"""
+
         if env.upper() != self.bot.config.ENV:
             return
 
@@ -59,6 +61,8 @@ class Commands(commands.Cog):
 
     @commands.command()
     async def invite(self, ctx: commands.Context):
+        """Get the bot invite link"""
+
         embed = self.bot.embed(
             ctx=ctx,
             title="Invite me to your server",
