@@ -112,8 +112,21 @@ class Bot(commands.Bot):
 
         await self.change_presence(activity=discord.Game(name="!help"))
 
+        await self.cogs["Log"].log_channel.send(
+            embed=self.cogs["Log"].log_embed(
+                "create", title=f"`[{self.config.ENV}]` Bot is online", user=self.user
+            )
+        )
+
     async def logout(self):
         await self.cogs["CodinGame"].close()
+
+        await self.cogs["Log"].log_channel.send(
+            embed=self.cogs["Log"].log_embed(
+                "delete", title=f"`[{self.config.ENV}]` Bot is offline", user=self.user
+            )
+        )
+
         await super().logout()
         self.logger.info(color("logged out", "green"))
 
