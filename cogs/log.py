@@ -116,12 +116,11 @@ class Log(commands.Cog):
             return
 
         self.logger.info(
-            f"message edited by user `{before.author}` in channel `{before.channel}`\n"
+            color(
+                f"message edited by user `{before.author}` in channel `{before.channel}`\n", "blue"
+            )
             + indent(f"before: {before.content}\nafter: {after.content}", 49)
         )
-
-        if before.guild is None:
-            return
 
         if before.content == after.content:
             return
@@ -157,12 +156,12 @@ class Log(commands.Cog):
             return
 
         self.logger.info(
-            f"message deleted by user `{message.author}` in channel `{message.channel}`\n"
-            + indent(f"content: {message.content}", 49)
+            color(
+                f"message deleted by user `{message.author}` in channel `{message.channel}`\n"
+                + indent(f"content: {message.content}", 49),
+                "red",
+            )
         )
-
-        if message.guild is None:
-            return
 
         log_embed = self.log_embed(
             "delete",
@@ -181,11 +180,11 @@ class Log(commands.Cog):
     @log
     async def on_bulk_message_delete(self, messages: typing.List[discord.Message]):
         self.logger.info(
-            f"bulk message delete in channel `{messages[0].channel}` ({len(messages)} messages)"
+            color(
+                f"bulk message delete in channel `{messages[0].channel}` ({len(messages)})",
+                "red",
+            )
         )
-
-        if messages[0].guild is None:
-            return
 
         log_embed = self.log_embed(
             "delete",
@@ -205,7 +204,7 @@ class Log(commands.Cog):
     @commands.Cog.listener()
     @log
     async def on_guild_channel_create(self, channel: discord.abc.GuildChannel):
-        self.logger.info(f"channel `{channel}` created")
+        self.logger.info(color(f"channel `{channel}` created", "green"))
 
         log_embed = self.log_embed(
             "create",
@@ -219,7 +218,7 @@ class Log(commands.Cog):
     @commands.Cog.listener()
     @log
     async def on_guild_channel_delete(self, channel: discord.abc.GuildChannel):
-        self.logger.info(f"channel `{channel}` deleted")
+        self.logger.info(color(f"channel `{channel}` deleted", "red"))
 
         log_embed = self.log_embed(
             "delete",
@@ -237,13 +236,12 @@ class Log(commands.Cog):
     @log
     async def on_guild_role_create(self, role: discord.Role):
         self.logger.info(
-            f"role `{role.name}` created:\n{{}}".format(
-                indent(
-                    self.role_desc.format(
-                        **self.to_dict(role), perms=self.perms_to_str(role.permissions)
-                    ).lower(),
-                    49,
-                )
+            color(f"role `{role.name}` created:\n", "green")
+            + indent(
+                self.role_desc.format(
+                    **self.to_dict(role), perms=self.perms_to_str(role.permissions)
+                ).lower(),
+                49,
             )
         )
 
@@ -266,13 +264,12 @@ class Log(commands.Cog):
     @log
     async def on_guild_role_delete(self, role: discord.Role):
         self.logger.info(
-            f"role `{role.name}` deleted:\n{{}}".format(
-                indent(
-                    self.role_desc.format(
-                        **self.to_dict(role), perms=self.perms_to_str(role.permissions)
-                    ).lower(),
-                    49,
-                )
+            color(f"role `{role.name}` deleted:\n", "red")
+            + indent(
+                self.role_desc.format(
+                    **self.to_dict(role), perms=self.perms_to_str(role.permissions)
+                ).lower(),
+                49,
             )
         )
 
@@ -289,7 +286,8 @@ class Log(commands.Cog):
     @log
     async def on_guild_role_update(self, before: discord.Role, after: discord.Role):
         self.logger.info(
-            f"role `{after.name}` edited:\nBefore: {{}}\nAfter: {{}}".format(
+            color(f"role `{after.name}` edited:\n", "blue")
+            + "Before: {}\nAfter: {}".format(
                 indent(
                     self.role_desc.format(
                         **self.to_dict(before), perms=self.perms_to_str(before.permissions)
@@ -333,7 +331,7 @@ class Log(commands.Cog):
     @commands.Cog.listener()
     @log
     async def on_guild_available(self, guild: discord.Guild):
-        self.logger.info(f"guild `{guild.name}` is available again")
+        self.logger.info(color(f"guild `{guild.name}` is available again", "green"))
         log_embed = self.log_embed(
             "create",
             description="**Guild is available again**",
@@ -346,7 +344,7 @@ class Log(commands.Cog):
     @commands.Cog.listener()
     @log
     async def on_guild_unavailable(self, guild: discord.Guild):
-        self.logger.warning(f"guild `{guild.name}` is unavailable")
+        self.logger.warning(color(f"guild `{guild.name}` is unavailable", "red"))
         log_embed = self.log_embed(
             "delete",
             description="**Guild is unavailable**",
@@ -362,7 +360,7 @@ class Log(commands.Cog):
     @commands.Cog.listener()
     @log
     async def on_member_join(self, member: discord.Member):
-        self.logger.info(f"member `{member}` joined")
+        self.logger.info(color(f"member `{member}` joined", "green"))
         log_embed = self.log_embed(
             "create",
             description=f"**Member joined: {member.mention} ({member})**",
@@ -399,7 +397,7 @@ class Log(commands.Cog):
     @commands.Cog.listener()
     @log
     async def on_member_remove(self, member: discord.Member):
-        self.logger.info(f"member `{member}` left")
+        self.logger.info(color(f"member `{member}` left", "red"))
         log_embed = self.log_embed(
             "delete",
             description=f"**Member left: {member.mention} ({member})**",
@@ -439,7 +437,7 @@ class Log(commands.Cog):
     @commands.Cog.listener()
     @log
     async def on_member_ban(self, guild: discord.Guild, user: discord.User):
-        self.logger.info(f"user `{user}` banned")
+        self.logger.info(color(f"user `{user}` banned", "red"))
         log_embed = self.log_embed(
             "delete",
             description=f"**User banned: {user.mention} ({user})**",
@@ -453,7 +451,7 @@ class Log(commands.Cog):
     @commands.Cog.listener()
     @log
     async def on_member_unban(self, guild: discord.Guild, user: discord.User):
-        self.logger.info(f"user `{user}` unbanned")
+        self.logger.info(color(f"user `{user}` unbanned", "green"))
         log_embed = self.log_embed(
             "create",
             description=f"**User unbanned: {user.mention} ({user})**",
@@ -470,7 +468,9 @@ class Log(commands.Cog):
         log_embed = self.log_embed("edit", footer=f"ID: {before.id}", user=after)
 
         if before.nick != after.nick:
-            self.logger.info(f"member `{after}` nickname changed: {before.nick} -> {after.nick}")
+            self.logger.info(
+                color(f"member `{after}` nickname changed: {before.nick} -> {after.nick}", "blue")
+            )
             log_embed.description = f"**Nickname changed: {after.mention}**"
             log_embed.add_field(name="Before", value=before.nick, inline=False)
             log_embed.add_field(name="After", value=after.nick, inline=False)
@@ -481,7 +481,10 @@ class Log(commands.Cog):
                     role for role in after.roles if role not in before.roles
                 ]
                 self.logger.info(
-                    f"member `{after}` roles added: {', '.join([r.name for r in added])}"
+                    color(
+                        f"member `{after}` roles added: {', '.join([r.name for r in added])}",
+                        "green",
+                    )
                 )
 
                 log_embed.description = (
@@ -498,7 +501,10 @@ class Log(commands.Cog):
                     role for role in before.roles if role not in after.roles
                 ]
                 self.logger.info(
-                    f"member `{after}` roles removed: {', '.join([r.name for r in removed])}"
+                    color(
+                        f"member `{after}` roles removed: {', '.join([r.name for r in removed])}",
+                        "red",
+                    )
                 )
 
                 log_embed.description = (
@@ -525,18 +531,20 @@ class Log(commands.Cog):
 
         # Channel updates
         if before.channel is None and after.channel is not None:
-            self.logger.info(f"member `{member}` joined vc: #{after.channel}")
+            self.logger.info(color(f"member `{member}` joined vc: #{after.channel}", "blue"))
             log_embed.description = (
                 f"Member **{member.mention}** joined voice channel **{after.channel.mention}**"
             )
 
         elif before.channel is not None and after.channel is None:
-            self.logger.info(f"member `{member}` left vc: #{before.channel}")
+            self.logger.info(color(f"member `{member}` left vc: #{before.channel}", "blue"))
             log_embed.description = (
                 f"Member **{member.mention}** left voice channel **{before.channel.mention}**"
             )
         elif before.channel != after.channel:
-            self.logger.info(f"member `{member}` moved vc: #{before.channel} -> #{after.channel}")
+            self.logger.info(
+                color(f"member `{member}` moved vc: #{before.channel} -> #{after.channel}", "blue")
+            )
             log_embed.description = (
                 f"Member **{member.mention}** moved from voice channel "
                 f"**{before.channel.mention}** to **{after.channel.mention}**"
@@ -544,26 +552,26 @@ class Log(commands.Cog):
 
         # Mute updates
         elif not before.mute and after.mute:
-            self.logger.info(f"member `{member}` muted in vc: #{after.channel}")
+            self.logger.info(color(f"member `{member}` muted in vc: #{after.channel}", "blue"))
             log_embed.description = (
                 f"Member **{member.mention}** was muted in **{after.channel.mention}**"
             )
 
         elif before.mute and not after.mute:
-            self.logger.info(f"member `{member}` unmuted in vc: #{after.channel}")
+            self.logger.info(color(f"member `{member}` unmuted in vc: #{after.channel}", "blue"))
             log_embed.description = (
                 f"Member **{member.mention}** was unmuted in **{after.channel.mention}**"
             )
 
         # Deaf updates
         elif not before.deaf and after.deaf:
-            self.logger.info(f"member `{member}` deafened in vc: #{after.channel}")
+            self.logger.info(color(f"member `{member}` deafened in vc: #{after.channel}", "blue"))
             log_embed.description = (
                 f"Member **{member.mention}** was deafened in **{after.channel.mention}**"
             )
 
         elif before.deaf and not after.deaf:
-            self.logger.info(f"member `{member}` undeafened in vc: #{after.channel}")
+            self.logger.info(color(f"member `{member}` undeafened in vc: #{after.channel}", "blue"))
             log_embed.description = (
                 f"Member **{member.mention}** was undeafened in **{after.channel.mention}**"
             )
