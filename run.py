@@ -8,7 +8,7 @@ async def main():
 
     try:
         await bot.start(Config.TOKEN)
-    except KeyboardInterrupt:
+    except:
         await bot.logout()
 
 if __name__ == "__main__":
