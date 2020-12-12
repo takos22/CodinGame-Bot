@@ -157,7 +157,7 @@ class Log(commands.Cog):
 
         self.logger.info(
             color(
-                f"message deleted by user `{message.author}` in channel `{message.channel}`\n"
+                f"message deleted by user `{message.author}` in channel `{message.channel}`\n",
                 "red",
             )
             + indent(f"content: {message.content}", 49),
