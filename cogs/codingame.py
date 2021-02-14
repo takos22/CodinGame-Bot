@@ -58,7 +58,10 @@ class CodinGame(commands.Cog):
                 ctx=ctx,
                 title="**Codingamer:** "
                 + self.clean(codingamer.pseudo or codingamer.public_handle),
-                description=self.clean(f"{codingamer.tagline or ''}\n{codingamer.biography or ''}"),
+                description=self.clean(
+                    f"[Profile](https://www.codingame.com/profile/{codingamer.public_handle}\n"
+                    f"{codingamer.tagline or ''}\n{codingamer.biography or ''}"
+                ),
             )
 
             if codingamer.avatar:
