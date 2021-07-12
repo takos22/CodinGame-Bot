@@ -2,23 +2,22 @@ import discord
 from discord.ext import commands
 
 import asyncio
+import typing
 
-from core import Bot
 from utils import color
 
+if typing.TYPE_CHECKING:
+    from bot import CodinGameBot
 
-def setup(bot: Bot):
+
+def setup(bot: "CodinGameBot"):
     bot.add_cog(Commands(bot=bot))
 
 
 class Commands(commands.Cog):
     def __init__(self, bot):
-        self.bot: Bot = bot
+        self.bot: "CodinGameBot" = bot
         self.logger = self.bot.logger.getChild("commands")
-        self.logger.info(color("cog `Commands` loaded", "blue"))
-
-    def cog_unload(self):
-        self.logger.info(color("cog `Commands` unloaded", "yellow"))
 
     # ---------------------------------------------------------------------------------------------
     # Helper methods
@@ -36,7 +35,10 @@ class Commands(commands.Cog):
     @commands.command(hidden=True)
     @commands.is_owner()
     async def logout(
-        self, ctx: commands.Context, env: str = "PROD", seconds_before_logout: int = 0
+        self,
+        ctx: commands.Context,
+        env: str = "PROD",
+        seconds_before_logout: int = 0,
     ):
         """Logout the bot"""
 
@@ -49,14 +51,18 @@ class Commands(commands.Cog):
         try:
             await self.bot.logout()
         except Exception as error:
-            embed = self.bot.embed(ctx=ctx, title="Logout failed", color=discord.Colour.red())
+            embed = self.bot.embed(
+                ctx=ctx, title="Logout failed", color=discord.Colour.red()
+            )
             await ctx.send(embed=embed)
             await self.bot.handle_error(error, ctx=ctx)
 
     @commands.command(aliases=["latency"])
     async def ping(self, ctx: commands.Context):
         """Check the bot latency"""
-        self.logger.info(color(f"bot ping is `{int(self.bot.latency*1000)}ms`", "yellow"))
+        self.logger.info(
+            color(f"bot ping is `{int(self.bot.latency*1000)}ms`", "yellow")
+        )
         await ctx.send(f"Pong! `{int(self.bot.latency*1000)}ms`")
 
     @commands.command()
@@ -68,7 +74,8 @@ class Commands(commands.Cog):
             title="Invite me to your server",
             description=(
                 f"[**Invite me here**]({self.invite_link})\n"
-                f"Curently in {len(self.bot.guilds)} server{'s' * bool(len(self.bot.guilds) - 1)}."
+                f"Curently in {len(self.bot.guilds)} "
+                f"server{'s' * bool(len(self.bot.guilds) - 1)}."
             ),
         )
         await ctx.send(embed=embed)

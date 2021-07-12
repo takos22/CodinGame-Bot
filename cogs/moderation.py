@@ -2,25 +2,24 @@ import discord
 from discord.ext import commands
 
 import datetime
+import typing
 
-from core import Bot
 from utils import color
 
+if typing.TYPE_CHECKING:
+    from bot import CodinGameBot
 
-def setup(bot: Bot):
+
+def setup(bot: "CodinGameBot"):
     bot.add_cog(Moderation(bot=bot))
 
 
 class Moderation(commands.Cog):
     def __init__(self, bot):
-        self.bot: Bot = bot
+        self.bot: "CodinGameBot" = bot
         self.logger = self.bot.logger.getChild("moderation")
-        self.logger.info(color("cog `Moderation` loaded", "blue"))
 
-    def cog_unload(self):
-        self.logger.info(color("cog `Moderation` unloaded", "yellow"))
-
-    # ---------------------------------------------------------------------------------------------
+    # --------------------------------------------------------------------------
     # Class methods
 
     @property
@@ -84,7 +83,7 @@ class Moderation(commands.Cog):
     async def cog_check(self, ctx) -> bool:
         return ctx.guild is not None
 
-    # ---------------------------------------------------------------------------------------------
+    # --------------------------------------------------------------------------
     # Commands
 
     @commands.command("purge")
@@ -102,7 +101,9 @@ class Moderation(commands.Cog):
     @commands.command("kick")
     @commands.guild_only()
     @commands.has_guild_permissions(kick_members=True)
-    async def kick(self, ctx: commands.Context, user: discord.Member, *, reason: str = None):
+    async def kick(
+        self, ctx: commands.Context, user: discord.Member, *, reason: str = None
+    ):
         """Kick a member with an optional reason"""
 
         # Checks
@@ -113,7 +114,9 @@ class Moderation(commands.Cog):
             return await ctx.send("You can't kick yourself")
 
         if user.top_role.position >= ctx.author.top_role.position:
-            return await ctx.send("You can't kick a user who has a higher role than you")
+            return await ctx.send(
+                "You can't kick a user who has a higher role than you"
+            )
 
         # Kick
         await ctx.guild.kick(user, reason=reason)
@@ -121,14 +124,18 @@ class Moderation(commands.Cog):
 
         # DM the user
         try:
-            await user.send(f"You were kicked from {ctx.guild.name} for reason: {reason}")
+            await user.send(
+                f"You were kicked from {ctx.guild.name} for reason: {reason}"
+            )
         except discord.Forbidden:
             self.logger.info(
                 f"user `{user}` kicked from guild `{ctx.guild}` "
                 f"for reason `{reason}` (couldn't DM them)"
             )
         else:
-            self.logger.info(f"user `{user}` kicked from guild `{ctx.guild}` for reason `{reason}`")
+            self.logger.info(
+                f"user `{user}` kicked from guild `{ctx.guild}` for reason `{reason}`"
+            )
 
         # Success embed
         success_embed = self.success_embed("kick", user)
@@ -168,26 +175,34 @@ class Moderation(commands.Cog):
 
         member: discord.Member = ctx.guild.get_member(user.id)
         if member and member.top_role.position >= ctx.author.top_role.position:
-            return await ctx.send("You can't ban a user who has a higher role than you")
+            return await ctx.send(
+                "You can't ban a user who has a higher role than you"
+            )
 
         bans = await ctx.guild.bans()
         if user.id in {ban.user.id for ban in bans}:
             return await ctx.send("User is already banned")
 
         # Ban
-        await ctx.guild.ban(user, reason=reason, delete_message_days=delete_message_days)
+        await ctx.guild.ban(
+            user, reason=reason, delete_message_days=delete_message_days
+        )
         await ctx.message.delete()
 
         # DM the user
         try:
-            await user.send(f"You were banned from {ctx.guild.name} for reason: {reason}")
+            await user.send(
+                f"You were banned from {ctx.guild.name} for reason: {reason}"
+            )
         except discord.Forbidden:
             self.logger.info(
                 f"user `{user}` banned from guild `{ctx.guild}` "
                 f"for reason `{reason}` (couldn't DM them)"
             )
         else:
-            self.logger.info(f"user `{user}` banned from guild `{ctx.guild}` for reason `{reason}`")
+            self.logger.info(
+                f"user `{user}` banned from guild `{ctx.guild}` for reason `{reason}`"
+            )
 
         # Success embed
         success_embed = self.success_embed("ban", user)
@@ -215,7 +230,9 @@ class Moderation(commands.Cog):
 
         # DM the user
         try:
-            await user.send(f"You were unbanned from {ctx.guild.name} for reason: {reason}")
+            await user.send(
+                f"You were unbanned from {ctx.guild.name} for reason: {reason}"
+            )
         except discord.Forbidden:
             self.logger.info(
                 f"user `{user}` unbanned from guild `{ctx.guild}` "
@@ -240,7 +257,9 @@ class Moderation(commands.Cog):
     @kick.error
     async def kick_error(self, ctx: commands.Context, error):
         error = getattr(error, "original", error)
-        self.logger.warning(f"command `{ctx.command.name}` raised exception: {error}")
+        self.logger.warning(
+            f"command `{ctx.command.name}` raised exception: {error}"
+        )
 
         if isinstance(error, commands.errors.MissingRequiredArgument):
             return await ctx.send_help("kick")
@@ -257,7 +276,9 @@ class Moderation(commands.Cog):
     @ban.error
     async def ban_error(self, ctx: commands.Context, error):
         error = getattr(error, "original", error)
-        self.logger.warning(f"command `{ctx.command.name}` raised exception: {error}")
+        self.logger.warning(
+            f"command `{ctx.command.name}` raised exception: {error}"
+        )
 
         # Missing argument
         if isinstance(error, commands.errors.MissingRequiredArgument):
@@ -274,12 +295,16 @@ class Moderation(commands.Cog):
             else:
                 # Reinvoke if the user is found
                 delete_message_days, *reason = (
-                    error.argument.join(ctx.message.content.split(error.argument)[1:])
+                    error.argument.join(
+                        ctx.message.content.split(error.argument)[1:]
+                    )
                     .lstrip()
                     .split()
                 )
                 reason = " ".join(reason)
-                await ctx.invoke(ctx.command, user, delete_message_days, reason=reason)
+                await ctx.invoke(
+                    ctx.command, user, delete_message_days, reason=reason
+                )
 
         # Can't ban
         elif isinstance(error, discord.Forbidden):
@@ -291,7 +316,9 @@ class Moderation(commands.Cog):
     @unban.error
     async def unban_error(self, ctx: commands.Context, error):
         error = getattr(error, "original", error)
-        self.logger.warning(f"command `{ctx.command.name}` raised exception: {error}")
+        self.logger.warning(
+            f"command `{ctx.command.name}` raised exception: {error}"
+        )
 
         # Missing argument
         if isinstance(error, commands.errors.MissingRequiredArgument):
@@ -307,7 +334,9 @@ class Moderation(commands.Cog):
                 return await ctx.send("User not found, you should use their id")
             else:
                 # Reinvoke if the user is found
-                reason = error.argument.join(ctx.message.content.split(error.argument)[1:]).lstrip()
+                reason = error.argument.join(
+                    ctx.message.content.split(error.argument)[1:]
+                ).lstrip()
 
                 await ctx.invoke(ctx.command, user, reason=reason)
 

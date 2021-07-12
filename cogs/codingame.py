@@ -1,39 +1,32 @@
 import discord
 from discord.ext import commands
 
-import aiocodingame
+import codingame
+import typing
 
-from core import Bot
 from utils import color
 
+if typing.TYPE_CHECKING:
+    from bot import CodinGameBot
 
-def setup(bot: Bot):
+
+def setup(bot: "CodinGameBot"):
     bot.add_cog(CodinGame(bot=bot))
 
 
 class CodinGame(commands.Cog):
     def __init__(self, bot):
-        self.bot: Bot = bot
+        self.bot: "CodinGameBot" = bot
         self.logger = self.bot.logger.getChild("commands")
-        self.logger.info(color("cog `CodinGame` loaded", "blue"))
 
-    def cog_unload(self):
-        self.logger.info(color("cog `CodinGame` unloaded", "yellow"))
-
-    async def start(self):
-        self.client = aiocodingame.Client()
-
-    async def close(self):
-        await self.client.close()
-
-    # ---------------------------------------------------------------------------------------------
+    # --------------------------------------------------------------------------
     # Helper methods
 
     @staticmethod
     def clean(text: str):
         return text.replace("_", r"\_").replace("*", r"\*").replace("`", r"\`")
 
-    # ---------------------------------------------------------------------------------------------
+    # --------------------------------------------------------------------------
     # Commands
 
     @commands.group(name="codingame", aliases=["cg"])
@@ -50,8 +43,10 @@ class CodinGame(commands.Cog):
     ):
         """Get a Codingamer from its username or public handle."""
         try:
-            codingamer: aiocodingame.CodinGamer = await self.client.get_codingamer(codingamer)
-        except (ValueError, aiocodingame.CodinGamerNotFound) as error:
+            codingamer: codingame.CodinGamer = (
+                await self.client.get_codingamer(codingamer)
+            )
+        except (ValueError, codingame.CodinGamerNotFound) as error:
             return await ctx.send(self.clean(str(error)))
         else:
             embed = self.bot.embed(
@@ -74,7 +69,9 @@ class CodinGame(commands.Cog):
             embed.add_field(name="Country", value=codingamer.country_id)
 
             if codingamer.category:
-                embed.add_field(name="Category", value=codingamer.category.title())
+                embed.add_field(
+                    name="Category", value=codingamer.category.title()
+                )
             if codingamer.school:
                 embed.add_field(name="School", value=codingamer.school)
             if codingamer.company:
@@ -90,10 +87,10 @@ class CodinGame(commands.Cog):
     ):
         """Get a Clash of Code from its public handle."""
         try:
-            clash_of_code: aiocodingame.ClashOfCode = await self.client.get_clash_of_code(
-                public_handle
+            clash_of_code: codingame.ClashOfCode = (
+                await self.client.get_clash_of_code(public_handle)
             )
-        except (ValueError, aiocodingame.ClashOfCodeNotFound) as error:
+        except (ValueError, codingame.ClashOfCodeNotFound) as error:
             return await ctx.send(self.clean(str(error)))
         else:
             embed = self.bot.embed(
@@ -104,11 +101,15 @@ class CodinGame(commands.Cog):
 
             embed.add_field(name="Min players", value=clash_of_code.min_players)
             embed.add_field(name="Max players", value=clash_of_code.max_players)
-            embed.add_field(name="# of players", value=len(clash_of_code.players))
+            embed.add_field(
+                name="# of players", value=len(clash_of_code.players)
+            )
             embed.add_field(name="Public", value=clash_of_code.public)
             embed.add_field(
                 name="Possible modes",
-                value=", ".join(clash_of_code.modes) if clash_of_code.modes else "Any",
+                value=", ".join(clash_of_code.modes)
+                if clash_of_code.modes
+                else "Any",
             )
             embed.add_field(
                 name="Programming languages",
@@ -117,11 +118,17 @@ class CodinGame(commands.Cog):
                 else "All",
             )
 
-            embed.add_field(name="Creation time", value=str(clash_of_code.creation_time))
-            embed.add_field(name="Start time", value=str(clash_of_code.start_time))
+            embed.add_field(
+                name="Creation time", value=str(clash_of_code.creation_time)
+            )
+            embed.add_field(
+                name="Start time", value=str(clash_of_code.start_time)
+            )
             embed.add_field(
                 name="End time",
-                value=str(clash_of_code.end_time) if clash_of_code.end_time else "Not finished yet",
+                value=str(clash_of_code.end_time)
+                if clash_of_code.end_time
+                else "Not finished yet",
             )
 
             embed.add_field(name="Started", value=clash_of_code.started)
@@ -132,17 +139,26 @@ class CodinGame(commands.Cog):
 
             embed.add_field(
                 name="Players",
-                value=", ".join(self.clean(player.pseudo) for player in clash_of_code.players),
+                value=", ".join(
+                    self.clean(player.pseudo)
+                    for player in clash_of_code.players
+                ),
             )
             await ctx.send(embed=embed)
 
-    @codingame.command(name="pending_clash_of_code", aliases=["pending", "pcoc"])
+    @codingame.command(
+        name="pending_clash_of_code", aliases=["pending", "pcoc"]
+    )
     async def pending_clash_of_code(self, ctx: commands.Context):
         """Get a pending public Clash of Code."""
-        clash_of_code: aiocodingame.ClashOfCode = await self.client.get_pending_clash_of_code()
+        clash_of_code: codingame.ClashOfCode = (
+            await self.client.get_pending_clash_of_code()
+        )
 
         if clash_of_code is None:
-            return await ctx.send("No pending clashes currently, try again later.")
+            return await ctx.send(
+                "No pending clashes currently, try again later."
+            )
 
         embed = self.bot.embed(
             ctx=ctx,
@@ -156,7 +172,9 @@ class CodinGame(commands.Cog):
         embed.add_field(name="Public", value=clash_of_code.public)
         embed.add_field(
             name="Possible modes",
-            value=", ".join(clash_of_code.modes) if clash_of_code.modes is not None else "Any",
+            value=", ".join(clash_of_code.modes)
+            if clash_of_code.modes is not None
+            else "Any",
         )
         embed.add_field(
             name="Programming languages",
@@ -165,11 +183,15 @@ class CodinGame(commands.Cog):
             else "All",
         )
 
-        embed.add_field(name="Creation time", value=str(clash_of_code.creation_time))
+        embed.add_field(
+            name="Creation time", value=str(clash_of_code.creation_time)
+        )
         embed.add_field(name="Start time", value=str(clash_of_code.start_time))
         embed.add_field(
             name="End time",
-            value=str(clash_of_code.end_time) if clash_of_code.end_time else "Not finished yet",
+            value=str(clash_of_code.end_time)
+            if clash_of_code.end_time
+            else "Not finished yet",
         )
 
         embed.add_field(name="Started", value=clash_of_code.started)
@@ -180,6 +202,8 @@ class CodinGame(commands.Cog):
 
         embed.add_field(
             name="Players",
-            value=", ".join(self.clean(player.pseudo) for player in clash_of_code.players),
+            value=", ".join(
+                self.clean(player.pseudo) for player in clash_of_code.players
+            ),
         )
         await ctx.send(embed=embed)

@@ -3,9 +3,12 @@ from discord.ext import commands
 
 import itertools
 import logging
+import typing
 
-from core import Bot
 from utils import color
+
+if typing.TYPE_CHECKING:
+    from bot import CodinGameBot
 
 
 class Help(commands.HelpCommand):
@@ -15,7 +18,7 @@ class Help(commands.HelpCommand):
         super().__init__(verify_checks=True, **options)
         self.logger = logger
 
-    # ---------------------------------------------------------------------------------------------
+    # --------------------------------------------------------------------------
     # Methods
 
     def embedify(self, title: str, description: str) -> discord.Embed:
@@ -23,7 +26,10 @@ class Help(commands.HelpCommand):
         embed: discord.Embed = self.context.bot.embed(
             ctx=self.context, title=title, description=description
         )
-        embed.set_author(name=self.context.bot.user, icon_url=self.context.bot.user.avatar_url)
+        embed.set_author(
+            name=self.context.bot.user,
+            icon_url=self.context.bot.user.avatar_url,
+        )
         return embed
 
     def command_not_found(self, command: str) -> str:
@@ -31,11 +37,16 @@ class Help(commands.HelpCommand):
 
     def subcommand_not_found(self, command: commands.Command, string) -> str:
         ret = f"Command `{self.context.prefix}{command.qualified_name}` has no subcommands."
-        if isinstance(command, commands.Group) and len(command.all_commands) > 0:
+        if (
+            isinstance(command, commands.Group)
+            and len(command.all_commands) > 0
+        ):
             return ret[:-2] + f" named {string}"
         return ret
 
-    def full_command_path(self, command: commands.Command, include_prefix: bool = True):
+    def full_command_path(
+        self, command: commands.Command, include_prefix: bool = True
+    ):
         string = f"`{command.qualified_name} {command.signature}`"
 
         if any(command.aliases):
@@ -62,7 +73,9 @@ class Help(commands.HelpCommand):
         groups = {}
 
         for command in filter(lambda cmd: isinstance(cmd, commands.Group), obj):
-            groups[command.name] = ", ".join(f"*{cmd.name}*" for cmd in command.commands)
+            groups[command.name] = ", ".join(
+                f"*{cmd.name}*" for cmd in command.commands
+            )
             obj.remove(command)
 
         for command in obj:
@@ -74,7 +87,9 @@ class Help(commands.HelpCommand):
     def list_to_string(_list: list) -> str:
         return ", ".join(
             [
-                obj.name if isinstance(obj, discord.Role) else str(obj).replace("_", " ")
+                obj.name
+                if isinstance(obj, discord.Role)
+                else str(obj).replace("_", " ")
                 for obj in _list
             ]
         )
@@ -83,7 +98,9 @@ class Help(commands.HelpCommand):
     # Help commands
 
     async def send_bot_help(self, mapping):
-        embed = self.embedify(title="**General Help**", description=self.opening_note)
+        embed = self.embedify(
+            title="**General Help**", description=self.opening_note
+        )
 
         no_category = "\u200bNo category"
 
@@ -99,11 +116,13 @@ class Help(commands.HelpCommand):
                 cmd_names, group_names = self.command_or_group(*cmds)
                 embed.add_field(
                     name=f"**{category}**",
-                    value=("**Commands:** " + ", ".join(cmd_names) + "\n") * bool(cmd_names)
+                    value=("**Commands:** " + ", ".join(cmd_names) + "\n")
+                    * bool(cmd_names)
                     + (
                         "**Groups: **\n"
                         + "\n".join(
-                            f"{group}: {names}" for group, names in group_names.items()
+                            f"{group}: {names}"
+                            for group, names in group_names.items()
                         )
                     )
                     * bool(group_names),
@@ -127,8 +146,12 @@ class Help(commands.HelpCommand):
 
             if isinstance(error, commands.MissingPermissions):
                 missing_permissions = error.missing_perms
-            elif isinstance(error, (commands.MissingRole, commands.MissingAnyRole)):
-                missing_permissions = error.missing_roles or [error.missing_role]
+            elif isinstance(
+                error, (commands.MissingRole, commands.MissingAnyRole)
+            ):
+                missing_permissions = error.missing_roles or [
+                    error.missing_role
+                ]
             else:
                 await self.context.bot.handle_error(error, ctx=self.context)
                 missing_permissions = None
@@ -148,7 +171,9 @@ class Help(commands.HelpCommand):
             description=group.short_doc or "*No special description*",
         )
 
-        filtered = await self.filter_commands(group.commands, sort=True, key=lambda c: c.name)
+        filtered = await self.filter_commands(
+            group.commands, sort=True, key=lambda c: c.name
+        )
         if filtered:
             for command in filtered:
                 name = self.full_command_path(command)
@@ -162,14 +187,17 @@ class Help(commands.HelpCommand):
                 )
 
         if not embed.fields:
-            embed.add_field(name="No commands", value="This group has no commands?")
+            embed.add_field(
+                name="No commands", value="This group has no commands?"
+            )
 
         self.logger.info(f"group `{group.name}` help sent")
         await self.context.send(embed=embed)
 
     async def send_cog_help(self, cog: commands.Cog):
         embed = self.embedify(
-            title=cog.qualified_name, description=cog.description or "*No special description*"
+            title=cog.qualified_name,
+            description=cog.description or "*No special description*",
         )
 
         filtered = await self.filter_commands(cog.get_commands())
@@ -190,8 +218,8 @@ class Help(commands.HelpCommand):
 
 
 class NewHelp(commands.Cog, name="Help Command"):
-    def __init__(self, bot: Bot):
-        self.bot: Bot = bot
+    def __init__(self, bot: "CodinGameBot"):
+        self.bot: "CodinGameBot" = bot
         self.logger = self.bot.logger.getChild("help")
 
         self._original_help_command: commands.HelpCommand = bot.help_command
@@ -199,12 +227,9 @@ class NewHelp(commands.Cog, name="Help Command"):
         bot.help_command.cog = self
         bot.get_command("help").hidden = True
 
-        self.logger.info(color("cog `Help Command` loaded", "blue"))
-
     def cog_unload(self):
         self.bot.help_command = self._original_help_command
-        self.logger.info(color("cog `Help Command` unloaded", "yellow"))
 
 
-def setup(bot: Bot):
+def setup(bot: "CodinGameBot"):
     bot.add_cog(NewHelp(bot))

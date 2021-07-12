@@ -36,3 +36,14 @@ def color(text: str, color: str) -> str:
     if color:
         text = f"{color}{text}{Colors.END}"
     return text
+
+
+def uncolor(text: str) -> str:
+    colors = [
+        getattr(Colors, color)
+        for color in dir(Colors)
+        if not color.startswith("__")
+    ]
+    for color in colors:
+        text = text.replace(color, "")
+    return text
