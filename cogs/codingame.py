@@ -15,6 +15,8 @@ def setup(bot: "CodinGameBot"):
 
 
 class CodinGame(commands.Cog):
+    """Commands for the CodinGame API."""
+
     def __init__(self, bot):
         self.bot: "CodinGameBot" = bot
         self.logger = self.bot.logger.getChild("commands")

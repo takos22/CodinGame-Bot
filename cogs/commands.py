@@ -15,11 +15,13 @@ def setup(bot: "CodinGameBot"):
 
 
 class Commands(commands.Cog):
+    """General bot commands."""
+
     def __init__(self, bot):
         self.bot: "CodinGameBot" = bot
         self.logger = self.bot.logger.getChild("commands")
 
-    # ---------------------------------------------------------------------------------------------
+    # --------------------------------------------------------------------------
     # Helper methods
 
     @property
@@ -29,7 +31,7 @@ class Commands(commands.Cog):
             "permissions=268528720&scope=bot"
         )
 
-    # ---------------------------------------------------------------------------------------------
+    # --------------------------------------------------------------------------
     # Commands
 
     @commands.command(hidden=True)
@@ -37,17 +39,13 @@ class Commands(commands.Cog):
     async def logout(
         self,
         ctx: commands.Context,
-        env: str = "PROD",
         seconds_before_logout: int = 0,
     ):
         """Logout the bot"""
 
-        if env.upper() != self.bot.config.ENV:
-            return
-
         await asyncio.sleep(seconds_before_logout)
         self.logger.warning(color("logging out", "red"))
-        await ctx.send(f"`[{env.upper()}]` **Logging out...**")
+        await ctx.send("**Logging out...**")
         try:
             await self.bot.logout()
         except Exception as error:
@@ -60,9 +58,7 @@ class Commands(commands.Cog):
     @commands.command(aliases=["latency"])
     async def ping(self, ctx: commands.Context):
         """Check the bot latency"""
-        self.logger.info(
-            color(f"bot ping is `{int(self.bot.latency*1000)}ms`", "yellow")
-        )
+
         await ctx.send(f"Pong! `{int(self.bot.latency*1000)}ms`")
 
     @commands.command()
