@@ -319,8 +319,8 @@ class CodinGameBot(commands.Bot):
     @staticmethod
     def embed(
         *,
-        title: str = "",
-        description: str = "",
+        title: str = discord.embeds.EmptyEmbed,
+        description: str = discord.embeds.EmptyEmbed,
         color: typing.Union[discord.Colour, int] = 0xFCD207,
         add_timestamp: bool = True,
         ctx: commands.Context = None,
