@@ -2,4 +2,4 @@ discord.py<=2
 codingame[async]
 jishaku
 python-dotenv
-sphobjinv[speedup]
+sphobjinv

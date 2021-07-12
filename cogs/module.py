@@ -44,7 +44,7 @@ class Module(commands.Cog):
 
     @property
     def docs_inventory(self) -> sphobjinv.Inventory:
-        return sphobjinv.Inventory(url=self.docs_url)
+        return sphobjinv.Inventory(url=self.docs_url + "objects.inv")
 
     # --------------------------------------------------------------------------
     # Commands
@@ -88,7 +88,7 @@ class Module(commands.Cog):
 
         description = "\n".join(
             [
-                f"[`{obj.dispname_expanded[len(self.module_name):]}`]"
+                f"[`{obj.dispname_expanded[len(self.module_name) + 1:]}`]"
                 f"({self.docs_url + obj.uri})"
                 for obj in best_matches
             ]
