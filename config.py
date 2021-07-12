@@ -30,6 +30,7 @@ class BaseConfig:
         "cogs.codingame",
         "cogs.log",
         "cogs.moderation",
+        "cogs.module",
     ]
 
     # Guild
