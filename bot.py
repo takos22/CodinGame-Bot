@@ -319,11 +319,13 @@ class CodinGameBot(commands.Bot):
     @staticmethod
     def embed(
         *,
-        title: str = discord.embeds.EmptyEmbed,
-        description: str = discord.embeds.EmptyEmbed,
+        title: str = None,
+        description: str = None,
         color: typing.Union[discord.Colour, int] = 0xFCD207,
         add_timestamp: bool = True,
         ctx: commands.Context = None,
+        footer: str = None,
+        footer_icon_url: str = None,
     ) -> discord.Embed:
         kwargs = {"color": color}
         if title:
@@ -338,6 +340,13 @@ class CodinGameBot(commands.Bot):
             embed.set_footer(
                 icon_url=ctx.author.avatar_url, text=f"Called by: {ctx.author}"
             )
+        elif footer:
+            kwargs = {
+                "text": footer,
+            }
+            if footer_icon_url:
+                kwargs["icon_url"] = footer_icon_url
+            embed.set_footer(**kwargs)
 
         return embed
 

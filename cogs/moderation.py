@@ -26,8 +26,8 @@ class Moderation(commands.Cog):
     def log_channel(self) -> discord.TextChannel:
         return self.bot.get_channel(Config.MOD_LOG_CHANNEL)
 
-    @staticmethod
     def log_embed(
+        self,
         action: str,
         user: discord.User,
         moderator: discord.User,
@@ -42,11 +42,11 @@ class Moderation(commands.Cog):
             "ban": discord.Colour.red(),
             "unban": discord.Colour.green(),
         }
-        embed = discord.Embed(
+        embed = self.bot.embed(
             title=f"**{action.title()}**",
             description=user.mention,
-            colour=colors[action],
-            timestamp=datetime.datetime.utcnow(),
+            color=colors[action],
+            footer=f"ID: {user.id}",
         )
 
         embed.add_field(name="User", value=user)
@@ -56,12 +56,11 @@ class Moderation(commands.Cog):
             embed.add_field(name="Duration", value=duration)
 
         embed.set_author(name=user, icon_url=user.avatar_url)
-        embed.set_footer(text=f"ID: {user.id}")
 
         return embed
 
-    @staticmethod
     def success_embed(
+        self,
         action: str,
         user: discord.User,
     ) -> discord.Embed:
@@ -73,7 +72,7 @@ class Moderation(commands.Cog):
             "ban": "banned",
             "unban": "unbanned",
         }
-        embed = discord.Embed(
+        embed = self.bot.embed(
             title=f"**{user}** was {verbs[action]}.",
             colour=discord.Colour.green(),
         )

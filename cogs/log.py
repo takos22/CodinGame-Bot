@@ -51,8 +51,8 @@ class Log(commands.Cog):
     def log_channel(self) -> discord.TextChannel:
         return self.bot.get_channel(Config.SERVER_LOG_CHANNEL)
 
-    @staticmethod
     def log_embed(
+        self,
         log_type: str,
         *,
         title: str = None,
@@ -66,15 +66,12 @@ class Log(commands.Cog):
             "edit": discord.Colour.blue(),
             "delete": discord.Colour.red(),
         }
-        embed = discord.Embed(
+        embed = self.bot.embed(
             title=title,
             description=description,
-            colour=colors[log_type],
-            timestamp=datetime.datetime.utcnow(),
+            color=colors[log_type],
+            footer=footer,
         )
-
-        if footer:
-            embed.set_footer(text=footer)
 
         if user:
             embed.set_author(name=user, icon_url=user.avatar_url)
