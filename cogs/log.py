@@ -49,7 +49,7 @@ class Log(commands.Cog):
 
     @property
     def log_channel(self) -> discord.TextChannel:
-        return self.bot.get_channel(self.bot.config.SERVER_LOG_CHANNEL)
+        return self.bot.get_channel(Config.SERVER_LOG_CHANNEL)
 
     @staticmethod
     def log_embed(

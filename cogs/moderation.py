@@ -4,7 +4,7 @@ from discord.ext import commands
 import datetime
 import typing
 
-from utils import color
+from config import Config
 
 if typing.TYPE_CHECKING:
     from bot import CodinGameBot
@@ -24,7 +24,7 @@ class Moderation(commands.Cog):
 
     @property
     def log_channel(self) -> discord.TextChannel:
-        return self.bot.get_channel(self.bot.config.MOD_LOG_CHANNEL)
+        return self.bot.get_channel(Config.MOD_LOG_CHANNEL)
 
     @staticmethod
     def log_embed(
