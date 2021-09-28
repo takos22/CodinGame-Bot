@@ -337,35 +337,35 @@ class Log(commands.Cog):
     # ---------------------------------------------------------------------------------------------
     # Guild available events
 
-    @commands.Cog.listener()
-    @log
-    async def on_guild_available(self, guild: discord.Guild):
-        self.logger.info(
-            color(f"guild `{guild.name}` is available again", "green")
-        )
-        log_embed = self.log_embed(
-            "create",
-            description="**Guild is available again**",
-            footer=f"ID: {guild.id}",
-            guild=guild,
-        )
+    # @commands.Cog.listener()
+    # @log
+    # async def on_guild_available(self, guild: discord.Guild):
+    #     self.logger.info(
+    #         color(f"guild `{guild.name}` is available again", "green")
+    #     )
+    #     log_embed = self.log_embed(
+    #         "create",
+    #         description="**Guild is available again**",
+    #         footer=f"ID: {guild.id}",
+    #         guild=guild,
+    #     )
 
-        await self.log_channel.send(embed=log_embed)
+    #     await self.log_channel.send(embed=log_embed)
 
-    @commands.Cog.listener()
-    @log
-    async def on_guild_unavailable(self, guild: discord.Guild):
-        self.logger.warning(
-            color(f"guild `{guild.name}` is unavailable", "red")
-        )
-        log_embed = self.log_embed(
-            "delete",
-            description="**Guild is unavailable**",
-            footer=f"ID: {guild.id}",
-            guild=guild,
-        )
+    # @commands.Cog.listener()
+    # @log
+    # async def on_guild_unavailable(self, guild: discord.Guild):
+    #     self.logger.warning(
+    #         color(f"guild `{guild.name}` is unavailable", "red")
+    #     )
+    #     log_embed = self.log_embed(
+    #         "delete",
+    #         description="**Guild is unavailable**",
+    #         footer=f"ID: {guild.id}",
+    #         guild=guild,
+    #     )
 
-        await self.log_channel.send(embed=log_embed)
+    #     await self.log_channel.send(embed=log_embed)
 
     # ---------------------------------------------------------------------------------------------
     # Member events
