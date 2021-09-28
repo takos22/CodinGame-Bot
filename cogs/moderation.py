@@ -3,6 +3,7 @@ from discord.ext import commands
 
 import datetime
 import typing
+from functools import wraps
 
 from config import Config
 
@@ -12,6 +13,17 @@ if typing.TYPE_CHECKING:
 
 def setup(bot: "CodinGameBot"):
     bot.add_cog(Moderation(bot=bot))
+
+
+def moderation(func: typing.Callable):
+    @wraps(func)
+    async def wrapper(self: "Moderation", ctx: commands.Context, *args):
+        if ctx.guild is None or ctx.guild.id != Config.GUILD:
+            return
+
+        await func(self, ctx, *args)
+
+    return wrapper
 
 
 class Moderation(commands.Cog):
@@ -86,8 +98,8 @@ class Moderation(commands.Cog):
     # Commands
 
     @commands.command("purge")
-    @commands.guild_only()
     @commands.has_guild_permissions(manage_messages=True)
+    @moderation()
     async def purge(self, ctx: commands.Context, number_of_messages: int):
         """Delete a number of messages (limit: 1000)"""
 
@@ -98,8 +110,8 @@ class Moderation(commands.Cog):
         )
 
     @commands.command("kick")
-    @commands.guild_only()
     @commands.has_guild_permissions(kick_members=True)
+    @moderation()
     async def kick(
         self, ctx: commands.Context, user: discord.Member, *, reason: str = None
     ):
@@ -145,8 +157,8 @@ class Moderation(commands.Cog):
         await self.log_channel.send(embed=log_embed)
 
     @commands.command("ban")
-    @commands.guild_only()
     @commands.has_guild_permissions(ban_members=True)
+    @moderation()
     async def ban(
         self,
         ctx: commands.Context,
@@ -212,8 +224,8 @@ class Moderation(commands.Cog):
         await self.log_channel.send(embed=log_embed)
 
     @commands.command("unban")
-    @commands.guild_only()
     @commands.has_guild_permissions(ban_members=True)
+    @moderation()
     async def unban(
         self,
         ctx: commands.Context,
